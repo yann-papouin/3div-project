@@ -12,11 +12,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
-    <ClInclude Include="TutorialApplication.h" />
+    <ClInclude Include="DrieDUIApplication.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
-    <ClCompile Include="TutorialApplication.cpp" />
+    <ClCompile Include="DrieDUIApplication.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7D0E0730-F0C0-4D78-A75F-9A56F52AC4D3}</ProjectGuid>
