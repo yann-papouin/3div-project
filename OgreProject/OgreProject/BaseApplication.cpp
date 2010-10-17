@@ -130,11 +130,12 @@ void BaseApplication::createFrameListener(void)
     items.push_back("");
     items.push_back("Filtering");
     items.push_back("Poly Mode");
+	items.push_back("VRPN");
 
     mDetailsPanel = mTrayMgr->createParamsPanel(OgreBites::TL_NONE, "DetailsPanel", 200, items);
     mDetailsPanel->setParamValue(9, "Bilinear");
     mDetailsPanel->setParamValue(10, "Solid");
-    mDetailsPanel->hide();
+    //mDetailsPanel->hide();
 
     mRoot->addFrameListener(this);
 }
@@ -213,6 +214,7 @@ bool BaseApplication::setup(void)
     mRoot = new Ogre::Root(mPluginsCfg);
 
     setupResources();
+	setupVrpn();
 
     bool carryOn = configure();
     if (!carryOn) return false;
@@ -250,6 +252,7 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
     mMouse->capture();
 
     mTrayMgr->frameRenderingQueued(evt);
+	vrpnc->loopAllRemotes();
 
     if (!mTrayMgr->isDialogVisible())
     {
@@ -263,7 +266,8 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
             mDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().x));
             mDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().y));
             mDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().z));
-        }
+			mDetailsPanel->setParamValue(11, vrpnc->getFeedback());
+		}
     }
 
     return true;
@@ -417,4 +421,9 @@ void BaseApplication::windowClosed(Ogre::RenderWindow* rw)
             mInputManager = 0;
         }
     }
+}
+//Setup and attach the vrpn
+void BaseApplication::setupVrpn(void)
+{
+	vrpnc = new vrpnController();
 }
