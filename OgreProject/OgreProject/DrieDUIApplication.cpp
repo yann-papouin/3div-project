@@ -3,36 +3,23 @@
 Filename:    DrieDUIApplication.cpp
 -----------------------------------------------------------------------------
 */
+
 #include "DrieDUIApplication.h"
 
 //-------------------------------------------------------------------------------------
 DrieDUIApplication::DrieDUIApplication(void)
 {
+	it=0;
 }
 //-------------------------------------------------------------------------------------
 DrieDUIApplication::~DrieDUIApplication(void)
 {
+	
 }
 
 //-------------------------------------------------------------------------------------
 void DrieDUIApplication::createScene(void)
 {
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// SPAM
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-	// ALS JE SHIFT INDRUKT DAN BEWEEG JE SNELLER
-
 	mCamera->setPosition(Ogre::Vector3(0, 500, -2500));
 	mCamera->lookAt(Ogre::Vector3(0,0,0));
 
@@ -45,8 +32,6 @@ void DrieDUIApplication::createScene(void)
 	//(Selecteerbare) objecten aanmaken
 	createObjects();
 }
-
-//-------------------------------------------------------------------------------------
 
 void DrieDUIApplication::createLight(void){
 	//Ambient light
@@ -64,8 +49,6 @@ void DrieDUIApplication::createLight(void){
 
 
 }
-
-//-------------------------------------------------------------------------------------
 void DrieDUIApplication::createGroundAndSky(void){
 	// De grond 
 	Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
@@ -83,12 +66,10 @@ void DrieDUIApplication::createGroundAndSky(void){
 	mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
 
 }
-
-//-------------------------------------------------------------------------------------
 void DrieDUIApplication::createObjects(void){
 	//+++++++++++++++++++++++++
 	Ogre::Entity* ninja = mSceneMgr->createEntity("Ninja", "ninja.mesh");
-    Ogre::SceneNode* ninjaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+    Ogre::SceneNode* ninjaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("ninjaNode1");
     ninjaNode->attachObject(ninja);
 	//+++++++++++++++++++++++++
 	Ogre::Entity* athena = mSceneMgr->createEntity( "Athena", "athene.mesh" );
@@ -127,9 +108,131 @@ void DrieDUIApplication::createObjects(void){
 	Ogre::SceneNode* ShaderSystemNode = mSceneMgr->getRootSceneNode()->createChildSceneNode( "ShaderSystemNode", Ogre::Vector3( 1500, 0, 400) );
 	ShaderSystemNode->attachObject( ShaderSystem );
 	//+++++++++++++++++++++++++
+
+	selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode1");
+	it++;
 }
+void DrieDUIApplication::manipulateNode(Ogre::Node* node)
+{
+	if(node != NULL)
+	{
+		Ogre::Quaternion q(0.9,0.3,0.2,0.4);
+		node->rotate(q);
+	}
+}
+bool DrieDUIApplication::keyPressed( const OIS::KeyEvent &arg )
+{
+	if (mTrayMgr->isDialogVisible()) return true;   // don't process any more keys if dialog is up
 
+	if(arg.key == OIS::KC_F1)
+	{
+		switch(it%3)
+		{
+			case 0:
+				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode1");
+				break;
+			case 1:
+				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode2");
+				break;
+			case 2:
+				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode3");
+				break;
+		}
+		it++;
+	}
+	else if(arg.key == OIS::KC_R)
+	{
+		manipulateNode(selectedNode);
+	}
+    else if (arg.key == OIS::KC_F)   // toggle visibility of advanced frame stats
+    {
+        mTrayMgr->toggleAdvancedFrameStats();
+    }
+    else if (arg.key == OIS::KC_G)   // toggle visibility of even rarer debugging details
+    {
+        if (mDetailsPanel->getTrayLocation() == OgreBites::TL_NONE)
+        {
+            mTrayMgr->moveWidgetToTray(mDetailsPanel, OgreBites::TL_TOPRIGHT, 0);
+            mDetailsPanel->show();
+        }
+        else
+        {
+            mTrayMgr->removeWidgetFromTray(mDetailsPanel);
+            mDetailsPanel->hide();
+        }
+    }
+    else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
+    {
+        Ogre::String newVal;
+        Ogre::TextureFilterOptions tfo;
+        unsigned int aniso;
 
+        switch (mDetailsPanel->getParamValue(9).asUTF8()[0])
+        {
+        case 'B':
+            newVal = "Trilinear";
+            tfo = Ogre::TFO_TRILINEAR;
+            aniso = 1;
+            break;
+        case 'T':
+            newVal = "Anisotropic";
+            tfo = Ogre::TFO_ANISOTROPIC;
+            aniso = 8;
+            break;
+        case 'A':
+            newVal = "None";
+            tfo = Ogre::TFO_NONE;
+            aniso = 1;
+            break;
+        default:
+            newVal = "Bilinear";
+            tfo = Ogre::TFO_BILINEAR;
+            aniso = 1;
+        }
+
+        Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
+        Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
+        mDetailsPanel->setParamValue(9, newVal);
+    }
+    else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
+    {
+        Ogre::String newVal;
+        Ogre::PolygonMode pm;
+
+        switch (mCamera->getPolygonMode())
+        {
+        case Ogre::PM_SOLID:
+            newVal = "Wireframe";
+            pm = Ogre::PM_WIREFRAME;
+            break;
+        case Ogre::PM_WIREFRAME:
+            newVal = "Points";
+            pm = Ogre::PM_POINTS;
+            break;
+        default:
+            newVal = "Solid";
+            pm = Ogre::PM_SOLID;
+        }
+
+        mCamera->setPolygonMode(pm);
+        mDetailsPanel->setParamValue(10, newVal);
+    }
+    else if(arg.key == OIS::KC_F5)   // refresh all textures
+    {
+        Ogre::TextureManager::getSingleton().reloadAll();
+    }
+    else if (arg.key == OIS::KC_SYSRQ)   // take a screenshot
+    {
+        mWindow->writeContentsToTimestampedFile("screenshot", ".jpg");
+    }
+    else if (arg.key == OIS::KC_ESCAPE)
+    {
+        mShutDown = true;
+    }
+
+    mCameraMan->injectKeyDown(arg);
+    return true;
+}
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
