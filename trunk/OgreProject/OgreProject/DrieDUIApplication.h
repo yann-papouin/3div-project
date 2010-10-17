@@ -16,9 +16,14 @@ public:
 
 protected:
     virtual void createScene(void);
+	virtual bool keyPressed( const OIS::KeyEvent &arg );
 	void createLight(void);
 	void createGroundAndSky(void);
 	void createObjects(void);
+	void manipulateNode(Ogre::Node* node);
+
+	Ogre::Node* selectedNode;
+	int it;
 };
 
 #endif // #ifndef __DrieDUIApplication_h_
