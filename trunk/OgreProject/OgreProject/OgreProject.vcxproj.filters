@@ -27,6 +27,12 @@
     <ClInclude Include="vrpnController.h">
       <Filter>vrpnManager</Filter>
     </ClInclude>
+    <ClInclude Include="CameraController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp">
@@ -37,6 +43,12 @@
     </ClCompile>
     <ClCompile Include="vrpnController.cpp">
       <Filter>vrpnManager</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
