@@ -14,14 +14,14 @@ DrieDUIApplication::DrieDUIApplication(void)
 //-------------------------------------------------------------------------------------
 DrieDUIApplication::~DrieDUIApplication(void)
 {
-	
+
 }
 
 //-------------------------------------------------------------------------------------
 void DrieDUIApplication::createScene(void)
 {
-	mCamera->setPosition(Ogre::Vector3(0, 500, -2500));
-	mCamera->lookAt(Ogre::Vector3(0,0,0));
+	//mCamera->setPosition(Ogre::Vector3(0, 500, -2500));
+	//mCamera->lookAt(Ogre::Vector3(0,0,0));
 
 	//Lichten (en schaduws) aanmaken
 	createLight();
@@ -35,32 +35,32 @@ void DrieDUIApplication::createScene(void)
 
 void DrieDUIApplication::createLight(void){
 	//Ambient light
-	  mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
-	  //Schaduwtype
-    mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
+	mSceneMgr->setAmbientLight(Ogre::ColourValue(0.5, 0.5, 0.5));
+	//Schaduwtype
+	mSceneMgr->setShadowTechnique(Ogre::SHADOWTYPE_STENCIL_ADDITIVE);
 
 	// Een directional light
-    Ogre::Light* directionalLight = mSceneMgr->createLight("directionalLight");
-    directionalLight->setType(Ogre::Light::LT_DIRECTIONAL);
-    directionalLight->setDiffuseColour(Ogre::ColourValue(.25, .25, 0));
-    directionalLight->setSpecularColour(Ogre::ColourValue(.25, .25, 0));
- 
-    directionalLight->setDirection(Ogre::Vector3( 0, -1, 1 )); 
+	Ogre::Light* directionalLight = mSceneMgr->createLight("directionalLight");
+	directionalLight->setType(Ogre::Light::LT_DIRECTIONAL);
+	directionalLight->setDiffuseColour(Ogre::ColourValue(.25, .25, 0));
+	directionalLight->setSpecularColour(Ogre::ColourValue(.25, .25, 0));
+
+	directionalLight->setDirection(Ogre::Vector3( 0, -1, 1 )); 
 
 
 }
 void DrieDUIApplication::createGroundAndSky(void){
 	// De grond 
 	Ogre::Plane plane(Ogre::Vector3::UNIT_Y, 0);
- 
-    Ogre::MeshManager::getSingleton().createPlane("ground", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-        plane, 10000, 10000, 20, 20, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
- 
-    Ogre::Entity* entGround = mSceneMgr->createEntity("GroundEntity", "ground");
-    mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entGround);
- 
-    entGround->setMaterialName("Examples/Rockwall");
-    entGround->setCastShadows(false);
+
+	Ogre::MeshManager::getSingleton().createPlane("ground", Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+		plane, 10000, 10000, 20, 20, true, 1, 5, 5, Ogre::Vector3::UNIT_Z);
+
+	Ogre::Entity* entGround = mSceneMgr->createEntity("GroundEntity", "ground");
+	mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(entGround);
+
+	entGround->setMaterialName("Examples/Rockwall");
+	entGround->setCastShadows(false);
 
 	//lucht
 	mSceneMgr->setSkyBox(true, "Examples/SpaceSkyBox");
@@ -69,8 +69,8 @@ void DrieDUIApplication::createGroundAndSky(void){
 void DrieDUIApplication::createObjects(void){
 	//+++++++++++++++++++++++++
 	Ogre::Entity* ninja = mSceneMgr->createEntity("Ninja", "ninja.mesh");
-    Ogre::SceneNode* ninjaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("ninjaNode1");
-    ninjaNode->attachObject(ninja);
+	Ogre::SceneNode* ninjaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("ninjaNode1");
+	ninjaNode->attachObject(ninja);
 	//+++++++++++++++++++++++++
 	Ogre::Entity* athena = mSceneMgr->createEntity( "Athena", "athene.mesh" );
 	Ogre::SceneNode* athenaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode( "athenaNode", Ogre::Vector3( -300, 90, -300) );
@@ -128,110 +128,119 @@ bool DrieDUIApplication::keyPressed( const OIS::KeyEvent &arg )
 	{
 		switch(it%3)
 		{
-			case 0:
-				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode1");
-				break;
-			case 1:
-				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode2");
-				break;
-			case 2:
-				selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode3");
-				break;
+		case 0:
+			selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode1");
+			break;
+		case 1:
+			selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode2");
+			break;
+		case 2:
+			selectedNode = mSceneMgr->getRootSceneNode()->getChild("ninjaNode3");
+			break;
 		}
 		it++;
+
+		return false;
 	}
 	else if(arg.key == OIS::KC_R)
 	{
 		manipulateNode(selectedNode);
+		return false;
 	}
-    else if (arg.key == OIS::KC_F)   // toggle visibility of advanced frame stats
-    {
-        mTrayMgr->toggleAdvancedFrameStats();
-    }
-    else if (arg.key == OIS::KC_G)   // toggle visibility of even rarer debugging details
-    {
-        if (mDetailsPanel->getTrayLocation() == OgreBites::TL_NONE)
-        {
-            mTrayMgr->moveWidgetToTray(mDetailsPanel, OgreBites::TL_TOPRIGHT, 0);
-            mDetailsPanel->show();
-        }
-        else
-        {
-            mTrayMgr->removeWidgetFromTray(mDetailsPanel);
-            mDetailsPanel->hide();
-        }
-    }
-    else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
-    {
-        Ogre::String newVal;
-        Ogre::TextureFilterOptions tfo;
-        unsigned int aniso;
+	else if (arg.key == OIS::KC_F)   // toggle visibility of advanced frame stats
+	{
+		mTrayMgr->toggleAdvancedFrameStats();
+		return false;
+	}
+	else if (arg.key == OIS::KC_G)   // toggle visibility of even rarer debugging details
+	{
+		if (mDetailsPanel->getTrayLocation() == OgreBites::TL_NONE)
+		{
+			mTrayMgr->moveWidgetToTray(mDetailsPanel, OgreBites::TL_TOPRIGHT, 0);
+			mDetailsPanel->show();
+		}
+		else
+		{
+			mTrayMgr->removeWidgetFromTray(mDetailsPanel);
+			mDetailsPanel->hide();
+		}
+		return false;
+	}
+	else if (arg.key == OIS::KC_T)   // cycle polygon rendering mode
+	{
+		Ogre::String newVal;
+		Ogre::TextureFilterOptions tfo;
+		unsigned int aniso;
 
-        switch (mDetailsPanel->getParamValue(9).asUTF8()[0])
-        {
-        case 'B':
-            newVal = "Trilinear";
-            tfo = Ogre::TFO_TRILINEAR;
-            aniso = 1;
-            break;
-        case 'T':
-            newVal = "Anisotropic";
-            tfo = Ogre::TFO_ANISOTROPIC;
-            aniso = 8;
-            break;
-        case 'A':
-            newVal = "None";
-            tfo = Ogre::TFO_NONE;
-            aniso = 1;
-            break;
-        default:
-            newVal = "Bilinear";
-            tfo = Ogre::TFO_BILINEAR;
-            aniso = 1;
-        }
+		switch (mDetailsPanel->getParamValue(9).asUTF8()[0])
+		{
+		case 'B':
+			newVal = "Trilinear";
+			tfo = Ogre::TFO_TRILINEAR;
+			aniso = 1;
+			break;
+		case 'T':
+			newVal = "Anisotropic";
+			tfo = Ogre::TFO_ANISOTROPIC;
+			aniso = 8;
+			break;
+		case 'A':
+			newVal = "None";
+			tfo = Ogre::TFO_NONE;
+			aniso = 1;
+			break;
+		default:
+			newVal = "Bilinear";
+			tfo = Ogre::TFO_BILINEAR;
+			aniso = 1;
+		}
 
-        Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
-        Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
-        mDetailsPanel->setParamValue(9, newVal);
-    }
-    else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
-    {
-        Ogre::String newVal;
-        Ogre::PolygonMode pm;
+		Ogre::MaterialManager::getSingleton().setDefaultTextureFiltering(tfo);
+		Ogre::MaterialManager::getSingleton().setDefaultAnisotropy(aniso);
+		mDetailsPanel->setParamValue(9, newVal);
+		return false;
+	}
+	else if (arg.key == OIS::KC_R)   // cycle polygon rendering mode
+	{
+		Ogre::String newVal;
+		Ogre::PolygonMode pm;
 
-        switch (mCamera->getPolygonMode())
-        {
-        case Ogre::PM_SOLID:
-            newVal = "Wireframe";
-            pm = Ogre::PM_WIREFRAME;
-            break;
-        case Ogre::PM_WIREFRAME:
-            newVal = "Points";
-            pm = Ogre::PM_POINTS;
-            break;
-        default:
-            newVal = "Solid";
-            pm = Ogre::PM_SOLID;
-        }
+		switch (mCamera->getPolygonMode())
+		{
+		case Ogre::PM_SOLID:
+			newVal = "Wireframe";
+			pm = Ogre::PM_WIREFRAME;
+			break;
+		case Ogre::PM_WIREFRAME:
+			newVal = "Points";
+			pm = Ogre::PM_POINTS;
+			break;
+		default:
+			newVal = "Solid";
+			pm = Ogre::PM_SOLID;
+		}
 
-        mCamera->setPolygonMode(pm);
-        mDetailsPanel->setParamValue(10, newVal);
-    }
-    else if(arg.key == OIS::KC_F5)   // refresh all textures
-    {
-        Ogre::TextureManager::getSingleton().reloadAll();
-    }
-    else if (arg.key == OIS::KC_SYSRQ)   // take a screenshot
-    {
-        mWindow->writeContentsToTimestampedFile("screenshot", ".jpg");
-    }
-    else if (arg.key == OIS::KC_ESCAPE)
-    {
-        mShutDown = true;
-    }
+		mCamera->setPolygonMode(pm);
+		mDetailsPanel->setParamValue(10, newVal);
+		return false;
+	}
+	else if(arg.key == OIS::KC_F5)   // refresh all textures
+	{
+		Ogre::TextureManager::getSingleton().reloadAll();
+		return false;
+	}
+	else if (arg.key == OIS::KC_SYSRQ)   // take a screenshot
+	{
+		mWindow->writeContentsToTimestampedFile("screenshot", ".jpg");
+		return false;
+	}
+	else if (arg.key == OIS::KC_ESCAPE)
+	{
+		mShutDown = true;
+		return false;
+	}
 
-    mCameraMan->injectKeyDown(arg);
-    return true;
+	return true;
 }
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -243,27 +252,27 @@ extern "C" {
 #endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+	INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 #else
-    int main(int argc, char *argv[])
+	int main(int argc, char *argv[])
 #endif
-    {
-        // Create application object
-        DrieDUIApplication app;
+	{
+		// Create application object
+		DrieDUIApplication app;
 
-        try {
-            app.go();
-        } catch( Ogre::Exception& e ) {
+		try {
+			app.go();
+		} catch( Ogre::Exception& e ) {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-            MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+			MessageBox( NULL, e.getFullDescription().c_str(), "An exception has occured!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-            std::cerr << "An exception has occured: " <<
-                e.getFullDescription().c_str() << std::endl;
+			std::cerr << "An exception has occured: " <<
+				e.getFullDescription().c_str() << std::endl;
 #endif
-        }
+		}
 
-        return 0;
-    }
+		return 0;
+	}
 
 #ifdef __cplusplus
 }

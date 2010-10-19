@@ -12,12 +12,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
+    <ClInclude Include="CameraController.h" />
     <ClInclude Include="DrieDUIApplication.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="vrpnController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
+    <ClCompile Include="CameraController.cpp" />
     <ClCompile Include="DrieDUIApplication.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="vrpnController.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
