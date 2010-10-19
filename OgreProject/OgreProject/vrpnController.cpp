@@ -13,13 +13,12 @@ void vrpnController::loopAllRemotes(void)
 */
 void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
 {
-	
-	std::string *feedback = static_cast<std::string*>(userData);
+	//std::string *feedback = static_cast<std::string*>(userData);
 	int nbChannels = a.num_channel;
-	(*feedback) = ("A");
+	//(*feedback) = ("A");
 	for(int i=0; i < a.num_channel; i++)
 	{
-		(*feedback) += a.channel[i];
+		//(*feedback) += a.channel[i];
 	}
 }
 
@@ -27,17 +26,19 @@ void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
 * Callback voor de knoppen
 */
 void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)
-{
-	
-	std::string *feedback = static_cast<std::string*>(userData);
+{	
+	//std::string *feedback = static_cast<std::string*>(userData);
 	//(*feedback) = "B" + b.button + ':' + b.state;
-	if (b.button == 0 && b.state == 1)
+	if ( b.state == 1)
 	{
-		(*feedback) = "LB ingedrukt";
+		std::stringstream out;
+		out << b.button;
+
+		//(*feedback) = out.str();
 	}
 	else
 	{
-		(*feedback) = "LB niet ingedrukt";
+		//(*feedback) = "LB niet ingedrukt";
 	}
 }
 
@@ -46,31 +47,32 @@ void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)
 */
 void VRPN_CALLBACK handle_keyboard(void* userData, const vrpn_BUTTONCB k)
 {
-	std::string *feedback = static_cast<std::string*>(userData);
+	//std::string *feedback = static_cast<std::string*>(userData);
 	if (k.state == 1)
 	{
 		std::stringstream out;
 		out << k.button;
 
-		(*feedback) = out.str();
+		//(*feedback) = out.str();
 	}
 	else
 	{
-		(*feedback) = "Geen knop ingedrukt";
+		//(*feedback) = "Geen knop ingedrukt";
 	}
 }
 
 vrpnController::vrpnController(void)
 {
-	vrpnAnalog = new vrpn_Analog_Remote("Mouse0@localhost");
-	vrpnButton = new vrpn_Button_Remote("Mouse0@localhost");
+	//vrpnAnalog = new vrpn_Analog_Remote("Mouse0@localhost");
+	//vrpnButton = new vrpn_Button_Remote("Mouse0@localhost");
+	vrpnAnalog = new vrpn_Analog_Remote("device0@localhost");
+	vrpnButton = new vrpn_Button_Remote("device0@localhost");
 	vrpnKeyboard = new vrpn_Button_Remote("Keyboard0@localhost");
 
-	feedback = "Test";
 	//Volgende functies kloppen wel, maar zijn commented om die feedback te kunnen tonen
 	//vrpnAnalog->register_change_handler(&feedback, handle_analog);//(void*)feedback.c_str() -> userdata?
-	//vrpnButton->register_change_handler(&feedback, handle_button);//(void*)feedback.c_str()
-	vrpnKeyboard->register_change_handler(&feedback, handle_keyboard);
+	vrpnButton->register_change_handler(&feedback, handle_button);//(void*)feedback.c_str()
+	//vrpnKeyboard->register_change_handler(&feedback, handle_keyboard);
 }
 
 /*

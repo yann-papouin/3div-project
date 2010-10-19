@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="vrpnManager">
-      <UniqueIdentifier>{a0df5fcc-a9ae-423c-99a4-85cbbcb20e6f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h">
@@ -23,9 +20,6 @@
     </ClInclude>
     <ClInclude Include="DrieDUIApplication.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vrpnController.h">
-      <Filter>vrpnManager</Filter>
     </ClInclude>
     <ClInclude Include="CameraController.h">
       <Filter>Header Files</Filter>
@@ -40,9 +34,6 @@
     </ClCompile>
     <ClCompile Include="DrieDUIApplication.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vrpnController.cpp">
-      <Filter>vrpnManager</Filter>
     </ClCompile>
     <ClCompile Include="CameraController.cpp">
       <Filter>Source Files</Filter>

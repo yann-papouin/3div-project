@@ -6,6 +6,12 @@
 #include <OISInputManager.h>
 #include <OgreRenderWindow.h>
 #include <iostream>
+#include "vrpnHeaders\vrpn_Analog.h"
+#include "vrpnHeaders\vrpn_Button.h"
+#include "vrpnHeaders\vrpn_Keyboard.h"
+#include "vrpnHeaders\vrpn_Tracker_3DMouse.h"
+#include <sstream>
+#include <string>
 
 using namespace std;
 
@@ -35,6 +41,8 @@ public:
 	void removeAllMouseListeners( void );
 
 	void setWindowExtents( int width, int height );
+	void setupVrpn(void);
+	void DmouseListener(void);
 
 	OIS::Mouse*    getMouse( void );
 	OIS::Keyboard* getKeyboard( void );
@@ -65,6 +73,10 @@ private:
 	std::map<std::string, OIS::MouseListener*>::iterator itMouseListenerEnd;
 
 	static InputManager *m_InputManager;
+	vrpn_Analog_Remote *vrpnAnalog;
+	vrpn_Button_Remote *vrpnButton;
+	vrpn_Button_Remote *vrpnKeyboard;
+	vrpn_Tracker_3DMouse *vrpn3DMouse;
 };
 
 #endif

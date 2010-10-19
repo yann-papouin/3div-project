@@ -2,6 +2,60 @@
 
 InputManager *InputManager::m_InputManager;
 
+//Callbacks
+/*
+* Callback voor de analoge waarden van de gewone muis (3d muis = ook compatibel normaal)
+*/
+void VRPN_CALLBACK handle_analog(void* userData, const vrpn_ANALOGCB a)
+{
+	//std::string *feedback = static_cast<std::string*>(userData);
+	int nbChannels = a.num_channel;
+	//(*feedback) = ("A");
+	for(int i=0; i < a.num_channel; i++)
+	{
+		//(*feedback) += a.channel[i];
+	}
+}
+
+/*
+* Callback voor de knoppen
+*/
+void VRPN_CALLBACK handle_button(void* userData, const vrpn_BUTTONCB b)
+{	
+	//std::string *feedback = static_cast<std::string*>(userData);
+	//(*feedback) = "B" + b.button + ':' + b.state;
+	if ( b.state == 1)
+	{
+		std::stringstream out;
+		out << b.button << " ingedrukt";
+		MessageBox(NULL, out.str().c_str(), "Knop ingedauwd",  MB_OK | MB_ICONERROR | MB_TASKMODAL);
+		//(*feedback) = out.str();
+	}
+	else
+	{
+		//(*feedback) = "LB niet ingedrukt";
+	}
+}
+
+/*
+* Callback voor het toetsenbord
+*/
+void VRPN_CALLBACK handle_keyboard(void* userData, const vrpn_BUTTONCB k)
+{
+	//std::string *feedback = static_cast<std::string*>(userData);
+	if (k.state == 1)
+	{
+		std::stringstream out;
+		out << k.button;
+		InputManager *inp = InputManager::getSingletonPtr();
+		//(*feedback) = out.str();
+	}
+	else
+	{
+		//(*feedback) = "Geen knop ingedrukt";
+	}
+}
+
 InputManager::InputManager( void ) :
 m_Mouse( 0 ),
 	m_Keyboard( 0 ),
@@ -40,6 +94,14 @@ void InputManager::initialise( Ogre::RenderWindow *renderWindow, bool keyboard, 
 		paramList.insert( std::make_pair( std::string( "WINDOW" ), windowHndStr.str() ) );
 
 		m_InputSystem = OIS::InputManager::createInputSystem( paramList );
+		vrpnAnalog = new vrpn_Analog_Remote("device0@localhost");
+		vrpnButton = new vrpn_Button_Remote("device0@localhost");
+		vrpnKeyboard = new vrpn_Button_Remote("Keyboard0@localhost");
+
+		//Volgende functies kloppen wel, maar zijn commented om die feedback te kunnen tonen
+		//vrpnAnalog->register_change_handler(&feedback, handle_analog);//(void*)feedback.c_str() -> userdata?
+		vrpnButton->register_change_handler(0, handle_button);//(void*)feedback.c_str()
+		//vrpnKeyboard->register_change_handler(&feedback, handle_keyboard);
 
 		if( keyboard ) {
 			m_Keyboard = static_cast<OIS::Keyboard*>( m_InputSystem->createInputObject( OIS::OISKeyboard, true ) );
@@ -65,6 +127,9 @@ void InputManager::capture( void ) {
 
 	if( m_Keyboard )
 		m_Keyboard->capture();
+	//vrpnc->loopAllRemotes();
+	vrpnButton->mainloop();
+	vrpnAnalog->mainloop();
 }
 
 void InputManager::addKeyListener( OIS::KeyListener *keyListener, const std::string& instanceName ) {
@@ -198,6 +263,12 @@ bool InputManager::mouseReleased( const OIS::MouseEvent &e, OIS::MouseButtonID i
 	}
 
 	return true;
+}
+
+void InputManager::DmouseListener(void)
+{
+	//int ID = vrpnc->getFeedback();
+
 }
 
 InputManager* InputManager::getSingletonPtr( void ) {

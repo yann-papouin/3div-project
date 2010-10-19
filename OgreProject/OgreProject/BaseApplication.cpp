@@ -180,7 +180,6 @@ bool BaseApplication::setup(void)
 	mRoot = new Ogre::Root(mPluginsCfg);
 
 	setupResources();
-	setupVrpn();
 
 	bool carryOn = configure();
 	if (!carryOn) return false;
@@ -217,7 +216,6 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	//Need to capture/update each device
 	m_pInputManager->capture();	
-	vrpnc->loopAllRemotes();
 
 	mTrayMgr->frameRenderingQueued(evt);
 
@@ -233,7 +231,6 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 			mDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().x));
 			mDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().y));
 			mDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mCamera->getDerivedOrientation().z));
-			mDetailsPanel->setParamValue(11, vrpnc->getFeedback());
 		}
 	}
 
@@ -386,9 +383,4 @@ void BaseApplication::windowClosed(Ogre::RenderWindow* rw)
 	{
 		delete m_pInputManager;
 	}
-}
-//Setup and attach the vrpn
-void BaseApplication::setupVrpn(void)
-{
-	vrpnc = new vrpnController();
 }
