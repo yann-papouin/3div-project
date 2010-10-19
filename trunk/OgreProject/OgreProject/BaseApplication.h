@@ -16,7 +16,6 @@
 
 #include <SdkTrays.h>
 
-#include "vrpnController.h"
 #include "CameraController.h"
 #include "InputManager.h"
 
@@ -39,7 +38,6 @@ protected:
 	virtual void setupResources(void);
 	virtual void createResourceListener(void);
 	virtual void loadResources(void);
-	virtual void setupVrpn(void);
 
 	// Ogre::FrameListener
 	virtual bool frameRenderingQueued(const Ogre::FrameEvent& evt);
@@ -70,9 +68,6 @@ protected:
 	OgreBites::ParamsPanel* mDetailsPanel;     // sample details panel
 	bool mCursorWasVisible;                    // was cursor visible before dialog appeared
 	bool mShutDown;
-
-	//VRPN controller
-	vrpnController *vrpnc;
 
 	CameraController* m_pCameraController;
 	InputManager* m_pInputManager;
