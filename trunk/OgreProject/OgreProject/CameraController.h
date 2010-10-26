@@ -30,6 +30,8 @@ public:
 	virtual bool mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 	virtual bool mouseReleased( const OIS::MouseEvent &arg, OIS::MouseButtonID id );
 
+	virtual void update(Ogre::Real secondsElapsed);
+
 private:
 	Ogre::Camera* m_pCamera;
 	Ogre::RenderWindow* m_pWindow;

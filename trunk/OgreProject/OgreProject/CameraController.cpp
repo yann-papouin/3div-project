@@ -38,34 +38,50 @@ void CameraController::createViewports(){// Create one viewport, entire window
 // OIS::KeyListener
 bool CameraController::keyPressed( const OIS::KeyEvent &arg ){
 	if (arg.key == OIS::KC_UP)
-	{
-		m_pCamera->moveRelative(Ogre::Vector3(0,0,50));
 		return false;
-	}
 	else if (arg.key == OIS::KC_DOWN)
-	{
-		m_pCamera->moveRelative(Ogre::Vector3(0,0,-50));
 		return false;
-	}
 	else if (arg.key == OIS::KC_LEFT)
-	{
-		m_pCamera->moveRelative(Ogre::Vector3(-50,0,0));
 		return false;
-	}
 	else if (arg.key == OIS::KC_RIGHT)
-	{
-		m_pCamera->moveRelative(Ogre::Vector3(50,0,0));
 		return false;
-	}
 
 	return true;
 }
+
 bool CameraController::keyReleased( const OIS::KeyEvent &arg ){
+	if (arg.key == OIS::KC_UP)
+		return false;
+	else if (arg.key == OIS::KC_DOWN)
+		return false;
+	else if (arg.key == OIS::KC_LEFT)
+		return false;
+	else if (arg.key == OIS::KC_RIGHT)
+		return false;	
+
 	return true;
 }
+
+void CameraController::update(Ogre::Real secondsElapsed){
+	InputManager* inputMan = InputManager::getSingletonPtr();
+	Ogre::Vector3 result = Ogre::Vector3(0,0,0);
+	if(inputMan->keyDown(OIS::KC_UP))
+		result += Ogre::Vector3(0,0,-500);
+	if(inputMan->keyDown(OIS::KC_DOWN))
+		result += Ogre::Vector3(0,0,500);
+	if(inputMan->keyDown(OIS::KC_LEFT))
+		result += Ogre::Vector3(-500,0,0);
+	if(inputMan->keyDown(OIS::KC_RIGHT))
+		result += Ogre::Vector3(500,0,0);
+
+	m_pCamera->moveRelative(result * secondsElapsed);	
+}
+
 // OIS::MouseListener
 bool CameraController::mouseMoved( const OIS::MouseEvent &arg ){
-	return true;
+	m_pCamera->yaw(Ogre::Degree(arg.state.X.rel * -0.1f));
+	m_pCamera->pitch(Ogre::Degree(arg.state.Y.rel * -0.1f));
+	return false;
 }
 bool CameraController::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id ){
 	return true;

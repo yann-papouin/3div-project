@@ -221,7 +221,7 @@ bool BaseApplication::frameRenderingQueued(const Ogre::FrameEvent& evt)
 
 	if (!mTrayMgr->isDialogVisible())
 	{
-		//m_pCameraController->frameRenderingQueued(evt);   // if dialog isn't up, then update the camera
+		m_pCameraController->update(evt.timeSinceLastFrame);   // if dialog isn't up, then update the camera
 		if (mDetailsPanel->isVisible())   // if details panel is visible, then update its contents
 		{
 			mDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(mCamera->getDerivedPosition().x));

@@ -20,7 +20,7 @@ public:
 	InputManager();
 	~InputManager( void );
 
-	void initialise( Ogre::RenderWindow *renderWindow, bool keyboard = true, bool mouse = true );
+	void initialise( Ogre::RenderWindow *renderWindow, bool keyboard = true, bool mouse = true, bool threedmouse = false);
 	void capture( void ); // in de main-loop aanroepen
 
 	void addKeyListener( OIS::KeyListener *keyListener, const std::string& instanceName );
