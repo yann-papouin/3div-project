@@ -1,0 +1,6 @@
+Om de wii remote te connecteren en gebruiken met de wiimote_testing
+
+1) Starten van Bluetooth.
+2) Druk op de 1+2 toest op de wii remote 
+3) Connecteer in bluetooth met het device Nintendo RVL-CNT-01 ( dit is de wii remote)
+4) Start de applicatie 
