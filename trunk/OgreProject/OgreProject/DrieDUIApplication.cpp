@@ -68,7 +68,7 @@ void DrieDUIApplication::createGroundAndSky(void){
 }
 void DrieDUIApplication::createObjects(void){
 	m_pRenderObjectManager = new RenderObjectManager(mSceneMgr);
-	//m_pRenderObjectManager->addCrate(Ogre::Vector3( -300, 90, -300) , Ogre::Radian(0), 10);
+	m_pRenderObjectManager->addCrate(Ogre::Vector3( -300, 90, -300) , Ogre::Radian(0), 10);
 
 
 	//+++++++++++++++++++++++++
