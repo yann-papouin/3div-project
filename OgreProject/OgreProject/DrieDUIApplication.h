@@ -9,6 +9,7 @@ Filename:    DrieDUIApplication.h
 #include "BaseApplication.h"
 #include "RenderObjectManager.h"
 
+
 class DrieDUIApplication : public BaseApplication
 {
 public:
@@ -25,8 +26,9 @@ protected:
 
 	Ogre::Node* selectedNode;
 	int it;
-
 	RenderObjectManager* m_pRenderObjectManager;
+
+
 };
 
 #endif // #ifndef __DrieDUIApplication_h_
