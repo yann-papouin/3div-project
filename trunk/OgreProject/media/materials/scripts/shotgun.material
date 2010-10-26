@@ -1,0 +1,180 @@
+
+material shotgun/shell_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~1.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/Ejector_Case_b
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~2.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/Base_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~3.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/Barrel_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~4.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/Trigger_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~5.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/Pump_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~6.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/base_front_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~7.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/base_top_bmp
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~8.JPG
+			}
+		}
+
+	}
+
+}
+
+material shotgun/base_front_fro
+{
+	technique
+	{
+		pass
+		{
+			ambient 0.117647 0.117647 0.117647 1
+			diffuse 0.752941 0.752941 0.752941 1
+
+			texture_unit
+			{
+				texture_alias 0
+				texture W_XM10~9.JPG
+			}
+		}
+
+	}
+
+}

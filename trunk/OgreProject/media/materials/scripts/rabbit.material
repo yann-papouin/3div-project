@@ -1,0 +1,35 @@
+material rabbit_skin
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.782451 0.726902 0.726902 1.000000
+			specular 0.000000 0.000000 0.000000 1.000000 2.750000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture rabbit_camo.png
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+material rabbit_teeth
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.987890 1.000000 1.000000 1.000000
+			specular 1.000000 1.000000 1.000000 1.000000 127.750000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
