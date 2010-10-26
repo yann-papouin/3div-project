@@ -12,6 +12,7 @@
 #include "vrpnHeaders\vrpn_Tracker_3DMouse.h"
 #include <sstream>
 #include <string>
+#include "wiiuse.h"
 
 using namespace std;
 
@@ -21,8 +22,9 @@ public:
 	~InputManager( void );
 
 	void initialise( Ogre::RenderWindow *renderWindow, bool keyboard = true, bool mouse = true, bool threedmouse = false);
+	void initialiseWiimotes();
 	void capture( void ); // in de main-loop aanroepen
-
+	void captureWiimote(void); //In cap aanroepen
 	void addKeyListener( OIS::KeyListener *keyListener, const std::string& instanceName );
 	void addMouseListener( OIS::MouseListener *mouseListener, const std::string& instanceName );
 
@@ -33,6 +35,8 @@ public:
 	bool keyDown(OIS::KeyCode k) { return m_Keyboard->isKeyDown(k); }
 	bool noKeyPressed() { return (!m_Keyboard->isKeyDown(OIS::KC_W) && !m_Keyboard->isKeyDown(OIS::KC_A) && !m_Keyboard->isKeyDown(OIS::KC_S) && !m_Keyboard->isKeyDown(OIS::KC_D)); }
 
+
+	//Listeners
 	void removeKeyListener( OIS::KeyListener *keyListener );
 	void removeMouseListener( OIS::MouseListener *mouseListener );
 
@@ -46,6 +50,12 @@ public:
 
 	OIS::Mouse*    getMouse( void );
 	OIS::Keyboard* getKeyboard( void );
+
+	//Bools voor wiiknoppen
+	bool wiiKeyUp;
+	bool wiiKeyDown;
+	bool wiiKeyLeft;
+	bool wiiKeyRight;
 
 	static InputManager* getSingletonPtr( void );
 private:
@@ -73,10 +83,16 @@ private:
 	std::map<std::string, OIS::MouseListener*>::iterator itMouseListenerEnd;
 
 	static InputManager *m_InputManager;
+	//VRPN
 	vrpn_Analog_Remote *vrpnAnalog;
 	vrpn_Button_Remote *vrpnButton;
 	vrpn_Button_Remote *vrpnKeyboard;
 	vrpn_Tracker_3DMouse *vrpn3DMouse;
+	//Wii - support for 2 remotes
+	wiimote **wiimotes;
+	int found, connected;
+
+
 };
 
 #endif

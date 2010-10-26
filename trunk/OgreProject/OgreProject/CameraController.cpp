@@ -66,13 +66,13 @@ bool CameraController::keyReleased( const OIS::KeyEvent &arg ){
 void CameraController::update(Ogre::Real secondsElapsed){
 	InputManager* inputMan = InputManager::getSingletonPtr();
 	Ogre::Vector3 result = Ogre::Vector3(0,0,0);
-	if(inputMan->keyDown(OIS::KC_UP))
+	if(inputMan->keyDown(OIS::KC_UP) || inputMan->wiiKeyUp)
 		result += Ogre::Vector3(0,0,-500);
-	if(inputMan->keyDown(OIS::KC_DOWN))
+	if(inputMan->keyDown(OIS::KC_DOWN) || inputMan->wiiKeyDown)
 		result += Ogre::Vector3(0,0,500);
-	if(inputMan->keyDown(OIS::KC_LEFT))
+	if(inputMan->keyDown(OIS::KC_LEFT) || inputMan->wiiKeyLeft)
 		result += Ogre::Vector3(-500,0,0);
-	if(inputMan->keyDown(OIS::KC_RIGHT))
+	if(inputMan->keyDown(OIS::KC_RIGHT) || inputMan->wiiKeyRight)
 		result += Ogre::Vector3(500,0,0);
 
 	m_pCamera->moveRelative(result * secondsElapsed);	
