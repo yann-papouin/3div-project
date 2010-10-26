@@ -6,6 +6,7 @@ Filename:    DrieDUIApplication.cpp
 
 #include "DrieDUIApplication.h"
 
+
 //-------------------------------------------------------------------------------------
 DrieDUIApplication::DrieDUIApplication(void)
 {
@@ -20,8 +21,8 @@ DrieDUIApplication::~DrieDUIApplication(void)
 //-------------------------------------------------------------------------------------
 void DrieDUIApplication::createScene(void)
 {
-	//mCamera->setPosition(Ogre::Vector3(0, 500, -2500));
-	//mCamera->lookAt(Ogre::Vector3(0,0,0));
+	mCamera->setPosition(Ogre::Vector3(0, 500, -2500));
+	mCamera->lookAt(Ogre::Vector3(0,0,0));
 
 	//Lichten (en schaduws) aanmaken
 	createLight();
@@ -31,6 +32,7 @@ void DrieDUIApplication::createScene(void)
 
 	//(Selecteerbare) objecten aanmaken
 	createObjects();
+			
 }
 
 void DrieDUIApplication::createLight(void){
