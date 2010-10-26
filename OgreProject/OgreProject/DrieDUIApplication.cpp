@@ -123,7 +123,7 @@ void DrieDUIApplication::manipulateNode(Ogre::Node* node)
 bool DrieDUIApplication::keyPressed( const OIS::KeyEvent &arg )
 {
 	if (mTrayMgr->isDialogVisible()) return true;   // don't process any more keys if dialog is up
-	
+
 	if(arg.key == OIS::KC_F1)
 	{
 		switch(it%3)

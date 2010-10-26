@@ -87,6 +87,7 @@ bool CameraController::mouseMoved( const OIS::MouseEvent &arg ){
 	m_pCamera->pitch(Ogre::Degree(arg.state.Y.rel * -0.1f));
 	return false;
 }
+
 bool CameraController::mousePressed( const OIS::MouseEvent &arg, OIS::MouseButtonID id ){
 	return true;
 }

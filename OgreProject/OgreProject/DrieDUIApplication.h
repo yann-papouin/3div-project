@@ -11,11 +11,11 @@ Filename:    DrieDUIApplication.h
 class DrieDUIApplication : public BaseApplication
 {
 public:
-    DrieDUIApplication(void);
-    virtual ~DrieDUIApplication(void);
+	DrieDUIApplication(void);
+	virtual ~DrieDUIApplication(void);
 
 protected:
-    virtual void createScene(void);
+	virtual void createScene(void);
 	virtual bool keyPressed( const OIS::KeyEvent &arg );
 	void createLight(void);
 	void createGroundAndSky(void);
