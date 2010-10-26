@@ -16,6 +16,8 @@
     <ClInclude Include="DotSceneLoader.h" />
     <ClInclude Include="DrieDUIApplication.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="RenderObject.h" />
+    <ClInclude Include="RenderObjectManager.h" />
     <ClInclude Include="TinyXml\tinystr.h" />
     <ClInclude Include="TinyXml\tinyxml.h" />
   </ItemGroup>
@@ -25,6 +27,8 @@
     <ClCompile Include="DotSceneLoader.cpp" />
     <ClCompile Include="DrieDUIApplication.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="RenderObject.cpp" />
+    <ClCompile Include="RenderObjectManager.cpp" />
     <ClCompile Include="TinyXml\tinystr.cpp" />
     <ClCompile Include="TinyXml\tinyxml.cpp" />
     <ClCompile Include="TinyXml\tinyxmlerror.cpp" />

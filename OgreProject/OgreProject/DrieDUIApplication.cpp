@@ -67,14 +67,18 @@ void DrieDUIApplication::createGroundAndSky(void){
 
 }
 void DrieDUIApplication::createObjects(void){
+	m_pRenderObjectManager = new RenderObjectManager(mSceneMgr);
+	m_pRenderObjectManager->addCrate(Ogre::Vector3( -300, 90, -300) , Ogre::Radian(0), 10);
+
+
 	//+++++++++++++++++++++++++
 	Ogre::Entity* ninja = mSceneMgr->createEntity("Ninja", "ninja.mesh");
 	Ogre::SceneNode* ninjaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("ninjaNode1");
 	ninjaNode->attachObject(ninja);
 	//+++++++++++++++++++++++++
-	Ogre::Entity* athena = mSceneMgr->createEntity( "Athena", "athene.mesh" );
-	Ogre::SceneNode* athenaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode( "athenaNode", Ogre::Vector3( -300, 90, -300) );
-	athenaNode->attachObject( athena );
+	//Ogre::Entity* athena = mSceneMgr->createEntity( "Athena", "athene.mesh" );
+	//Ogre::SceneNode* athenaNode = mSceneMgr->getRootSceneNode()->createChildSceneNode( "athenaNode", Ogre::Vector3( -300, 90, -300) );
+	//athenaNode->attachObject( athena );
 	//+++++++++++++++++++++++++
 	Ogre::Entity* tudorHouse = mSceneMgr->createEntity( "tudorHouse", "tudorhouse.mesh" );
 	Ogre::SceneNode* tudorHouseNode = mSceneMgr->getRootSceneNode()->createChildSceneNode( "tudorHouseNode", Ogre::Vector3( 1500, 550, 1500) );
