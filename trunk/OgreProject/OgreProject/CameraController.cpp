@@ -1,5 +1,6 @@
 #include "CameraController.h"
 #include <iostream>
+#include "math.h"
 using namespace std;
 
 
@@ -75,6 +76,9 @@ void CameraController::update(Ogre::Real secondsElapsed){
 		result += Ogre::Vector3(500,0,0);
 
 	m_pCamera->moveRelative(result * secondsElapsed);	
+	Ogre::Vector3 pos = m_pCamera->getPosition();
+	pos.y = std::max(50.0, (double) pos.y);
+	m_pCamera->setPosition(pos);
 }
 
 // OIS::MouseListener
