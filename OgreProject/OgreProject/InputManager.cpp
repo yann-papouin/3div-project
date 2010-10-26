@@ -82,7 +82,7 @@ InputManager::~InputManager( void ) {
 	}
 }
 
-void InputManager::initialise( Ogre::RenderWindow *renderWindow, bool keyboard, bool mouse ) {
+void InputManager::initialise( Ogre::RenderWindow *renderWindow, bool keyboard, bool mouse, bool threedmouse ) {
 	if( !m_InputSystem ) {
 		OIS::ParamList paramList;    
 		size_t windowHnd = 0;
