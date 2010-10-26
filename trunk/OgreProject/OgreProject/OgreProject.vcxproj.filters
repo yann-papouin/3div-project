@@ -36,6 +36,12 @@
     <ClInclude Include="TinyXml\tinystr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderObjectManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp">
@@ -63,6 +69,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TinyXml\tinyxmlparser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderObjectManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
