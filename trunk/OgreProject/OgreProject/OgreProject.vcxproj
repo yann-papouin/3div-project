@@ -13,14 +13,22 @@
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="CameraController.h" />
+    <ClInclude Include="DotSceneLoader.h" />
     <ClInclude Include="DrieDUIApplication.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="TinyXml\tinystr.h" />
+    <ClInclude Include="TinyXml\tinyxml.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="DotSceneLoader.cpp" />
     <ClCompile Include="DrieDUIApplication.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="TinyXml\tinystr.cpp" />
+    <ClCompile Include="TinyXml\tinyxml.cpp" />
+    <ClCompile Include="TinyXml\tinyxmlerror.cpp" />
+    <ClCompile Include="TinyXml\tinyxmlparser.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{7D0E0730-F0C0-4D78-A75F-9A56F52AC4D3}</ProjectGuid>
