@@ -4,7 +4,6 @@ using System.Runtime.InteropServices;
 using System;
 
 public class WiiController : MonoBehaviour {
-
 	//DLLImports: handjes af
 	[DllImport ("UniWii")]
 	private static extern void wiimote_start();
@@ -91,6 +90,8 @@ public class WiiController : MonoBehaviour {
 	public float pitchFudge = 30.0f;
 	public float rollFudge = 50.0f;
 	public bool showDebugGUI = true;
+	public float moveStep = 0.5f;
+	public float rotateStep = 2.0f;
 	public Texture2D wiimote_cursor_tex; //Texture voor de wiimote pointer?
 	
 	//Shared tussen keyboard en wiimote
@@ -220,12 +221,54 @@ public class WiiController : MonoBehaviour {
 	//Eigen functies -> Doe hier om te zorgen dat functies makkelijk copypastebaar zijn tussen keyboard / wiimotescript
 	private void moveCameraLeft()
 	{
-		Debug.Log("Move camera links");
+		Debug.Log("Move camera left");	
+		
+		Vector3 cameraRelative = playerCam.transform.TransformDirection (-moveStep,0,0);		
+		cameraRelative.y = 0;
+		playerCam.transform.localPosition += cameraRelative;
 	}
+	
 	private void moveCameraRight()
 	{
-		Debug.Log("Move camera rechts");
+		Debug.Log("Move camera right");
+		
+		Vector3 cameraRelative = playerCam.transform.TransformDirection (moveStep,0,0);
+		cameraRelative.y = 0;		
+		playerCam.transform.localPosition += cameraRelative;
 	}
+	
+	private void moveCameraForward()
+	{
+		Debug.Log("Move camera forward");
+		
+		Vector3 cameraRelative = playerCam.transform.TransformDirection (0,0,moveStep);	
+		cameraRelative.y = 0;
+		playerCam.transform.localPosition += cameraRelative;
+	}
+	
+	private void moveCameraBackward()
+	{
+		Debug.Log("Move camera backward");
+		
+		Vector3 cameraRelative = playerCam.transform.TransformDirection (0,0,-moveStep);	
+		cameraRelative.y = 0;		
+		playerCam.transform.localPosition += cameraRelative;
+	}
+	
+	private void rotateCameraLeft()
+	{
+		Debug.Log("Rotate camera left");
+		
+		playerCam.transform.Rotate(0,-rotateStep,0);
+	}
+	
+	private void rotateCameraRight()
+	{
+		Debug.Log("Rotate camera right");
+		
+		playerCam.transform.Rotate(0,rotateStep,0);
+	}
+	
 	private void zoomCameraOut() //Jens heeft dit al gedaan in testscene. Code in comments
 	{
 		Debug.Log("Zoom camera uit/Swap camera");
