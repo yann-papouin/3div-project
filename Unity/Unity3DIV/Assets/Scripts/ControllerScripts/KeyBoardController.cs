@@ -7,9 +7,21 @@ public class KeyBoardController : MonoBehaviour {
 	public float moveStep = 0.5f;
 	public float rotateStep = 2.0f;
 	
+	//Similar to wiimote texture
+	public Texture2D cursorImage;
+	
+	//Gui elementen op muis/wiimote
+	public GUITexture basegui;
+	private GUITexture screenpointer;
 	// Use this for initialization
 	void Start () {
-	
+		//Turn off mouse pointer and set the cursorImage
+		screenpointer = (GUITexture)Instantiate(basegui);
+		Screen.showCursor = false;
+		screenpointer.texture = cursorImage;
+		screenpointer.color = Color.green;
+		screenpointer.pixelInset = new Rect(10,10,10,10);
+		screenpointer.transform.localScale -= new Vector3(1, 1, 0);
 	}
 	
 	// Update is called once per frame
@@ -34,6 +46,15 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraLeft();
 		if (Input.GetKey ("h"))
 			rotateCameraRight();
+		
+		//Set the gui shizzle
+		Vector3 mousePos= Input.mousePosition;
+		float mouseX = mousePos.x/Screen.width;
+		float mouseY = mousePos.y/Screen.height;
+		screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
+		//screenpointer.transform.position = mouseY;
+		//Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
+		//GUI.Label(cursloc, cursorImage);
 	}
 	
 	//COPYPASTA
