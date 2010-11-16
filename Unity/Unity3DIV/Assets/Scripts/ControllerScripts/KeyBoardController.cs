@@ -11,15 +11,20 @@ public class KeyBoardController : MonoBehaviour {
 	public Texture2D cursorImage;
 	
 	//Gui elementen op muis/wiimote
-	public GUITexture basegui;
+	public GUITexture baseGuiTexture;
 	private GUITexture screenpointer;
+	private RayCastScript raycastscript;
+	private GameObject lastGameObjectHit;
 	// Use this for initialization
 	void Start () {
+		//Set ref script
+		raycastscript = gameObject.GetComponent("RayCastScript") as RayCastScript;
+		
 		//Turn off mouse pointer and set the cursorImage
-		screenpointer = (GUITexture)Instantiate(basegui);
+		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
 		Screen.showCursor = false;
 		screenpointer.texture = cursorImage;
-		screenpointer.color = Color.green;
+		screenpointer.color = Color.red;
 		screenpointer.pixelInset = new Rect(10,10,10,10);
 		screenpointer.transform.localScale -= new Vector3(1, 1, 0);
 	}
@@ -46,11 +51,15 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraLeft();
 		if (Input.GetKey ("h"))
 			rotateCameraRight();
+		if (Input.GetButton("Fire1"))
+			raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
 		
 		//Set the gui shizzle
 		Vector3 mousePos= Input.mousePosition;
 		float mouseX = mousePos.x/Screen.width;
 		float mouseY = mousePos.y/Screen.height;
+		//Debug.Log(mouseX + "\t" + mouseY);
+		//screenpointer.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
 		screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
 		//screenpointer.transform.position = mouseY;
 		//Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
