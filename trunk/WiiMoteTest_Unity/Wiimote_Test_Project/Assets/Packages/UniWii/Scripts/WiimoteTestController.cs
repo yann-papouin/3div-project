@@ -217,7 +217,6 @@ public class WiimoteTestController : MonoBehaviour {
 		if (enableDebugTests) {
 			DoDebugTests(0);
 		}
-
 	}
 
 	void OnApplicationQuit() {

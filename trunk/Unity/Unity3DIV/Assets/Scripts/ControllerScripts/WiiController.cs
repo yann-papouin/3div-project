@@ -1,7 +1,7 @@
 using UnityEngine;
+using System;
 using System.Collections;
 using System.Runtime.InteropServices;
-using System;
 
 public class WiiController : MonoBehaviour {
 	//DLLImports: handjes af
@@ -66,7 +66,6 @@ public class WiiController : MonoBehaviour {
 	private int lightIndicatorCount; 
 	private bool[] isExpansion;
 	private string display;
-	private int[] cursor_x, cursor_y;
 	private Vector3 vec;
 	private Vector3 oldVec;
 	private int wiimoteCount;
@@ -76,6 +75,8 @@ public class WiiController : MonoBehaviour {
 	private int z;
 	private float ir_x;
 	private float ir_y;
+	private float temp_x;
+	private float temp_y;
 	private float roll;
 	private float pitch;
 	private float yaw;
@@ -92,7 +93,12 @@ public class WiiController : MonoBehaviour {
 	public bool showDebugGUI = true;
 	public float moveStep = 0.5f;
 	public float rotateStep = 2.0f;
-	public Texture2D wiimote_cursor_tex; //Texture voor de wiimote pointer?
+	
+	public Texture2D cursorImage; 
+	public GUITexture baseGuiTexture;
+	private GUITexture screenpointer;
+	private RayCastScript raycastscript;
+	private GameObject lastGameObjectHit;
 	
 	//Shared tussen keyboard en wiimote
 	public GameObject playerCam; 
@@ -101,14 +107,18 @@ public class WiiController : MonoBehaviour {
 	void Start () {
 		//Init controllers
 		wiimote_start();
-		cursor_x = new int[16];
-		cursor_y = new int[16];
-		//wiimote_cursor_tex = (Texture2D) Resources.Load("crosshair");
+		
+		//Turn off mouse pointer and set the cursorImage
+		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
+		Screen.showCursor = false;
+		screenpointer.texture = cursorImage;
+		screenpointer.color = Color.red;
+		screenpointer.pixelInset = new Rect(10,10,10,10);
+		screenpointer.transform.localScale -= new Vector3(1,1,0);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
 	}
 	
 	void FixedUpdate(){
@@ -122,8 +132,6 @@ public class WiiController : MonoBehaviour {
 			roll = Mathf.Round(wiimote_getRoll(0) + rollFudge);
 			pitch = Mathf.Round(wiimote_getPitch(0) + pitchFudge);
 			yaw = Mathf.Round(wiimote_getYaw(0));
-			ir_x = wiimote_getIrX(0);
-			ir_y = wiimote_getIrY(0);
 			
 			//Orientation vectors				
 			if (!float.IsNaN(roll) && !float.IsNaN(pitch)) {
@@ -132,13 +140,20 @@ public class WiiController : MonoBehaviour {
 					vec = Vector3.Lerp(oldVec, vec, Time.deltaTime * sensitivity);
 					oldVec = vec;
 				}
-			/* ir cursor values */
+
+			/* ir Gui Shizniz */
+			ir_x = wiimote_getIrX(0);
+			ir_y = wiimote_getIrY(0);
+			//temp_x = (Screen.width * 0.5f) + ir_x * Screen.width * 0.5f;
+			//temp_y = Screen.height - (ir_y * Screen.height * 0.5f);
+			//Fuck off basic zooi die er al was, Jens coming through
 			if ( (ir_x != -100) && (ir_y != -100) ) {
-				float temp_x = ((ir_x + 1.0f)/ 2.0f) * Screen.width;
-			    float temp_y = Screen.height - (((ir_y + 1.0f)/ 2.0f) * Screen.height);
-			    cursor_x[wiimoteCount] = Mathf.RoundToInt(temp_x);
-			    cursor_y[wiimoteCount] = Mathf.RoundToInt(temp_y);
-			}	
+				temp_x = (ir_x + 1)/2;
+				temp_y = (ir_y + 1)/2;
+				screenpointer.transform.position = new Vector3(temp_x, temp_y, 0);
+				//screenpointer.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
+				//Debug.Log(ir_x + "\t" + ir_y + "\t," + temp_x + "\t" + temp_y);
+				}
 			
 			//Hierna komen eigen aanroepen en tests voor bijv. camera enzo
 			if (roll <= 30) //Wiimote links kantelen
@@ -158,6 +173,7 @@ public class WiiController : MonoBehaviour {
 	//Gui
 	void OnGUI() {
 		if (showDebugGUI) {
+			/*
 			GUIStyle label_wiimote_cursor;
 			if (wiimote_cursor_tex) {
 				label_wiimote_cursor = new GUIStyle();
@@ -167,8 +183,8 @@ public class WiiController : MonoBehaviour {
 				label_wiimote_cursor = "box";
 			
 			label_wiimote_cursor.clipping = TextClipping.Overflow;
-			label_wiimote_cursor.normal.textColor = Color.red;
-
+			label_wiimote_cursor.normal.textColor = Color.red;*/
+		
 			/* show debug info */
 			GUI.Label( new Rect(10,10, Screen.width-10, Screen.height-10), display);
 
@@ -210,6 +226,7 @@ public class WiiController : MonoBehaviour {
 			if (wiimote_getButtonDown(0)) display += " Down ";
 			if (wiimote_getButtonLeft(0)) display += " Left ";
 			if (wiimote_getButtonRight(0)) display += " Right ";
+			display += "xcoord" + temp_x + "\nycoord" + temp_y;
 		}
 		else {
 			display = "No Wii Remote detected... \nPress the '1' & '2' buttons on your Wii Remote to search!";
