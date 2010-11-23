@@ -21,6 +21,6 @@ public class TestScript : MonoBehaviour {
 		GameObject clone = GameObject.Find("trex_ori1");
 		GameObject tafel = GameObject.Find("tafel");
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
-		cloneScript.setParent(tafel);
+		cloneScript.setParentTransform(Camera.main.transform);
 	}
 }

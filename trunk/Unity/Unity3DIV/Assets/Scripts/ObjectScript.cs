@@ -57,6 +57,10 @@ public class ObjectScript : MonoBehaviour {
 		transform.parent = parent_.transform;
 	}
 	
+	public void setParentTransform(Transform parent_){
+		transform.parent = parent_;
+	}
+	
 	public void clone(Vector3 pos, Quaternion rot){
 		GameObject clone = (GameObject) Instantiate(gameObject, pos, rot);
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
