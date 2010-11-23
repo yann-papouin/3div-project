@@ -7,18 +7,27 @@ public class KeyBoardController : MonoBehaviour {
 	public float moveStep = 0.5f;
 	public float rotateStep = 2.0f;
 	
+	
 	//Similar to wiimote texture
 	public Texture2D cursorImage;
 	
 	//Gui elementen op muis/wiimote
 	public GUITexture baseGuiTexture;
 	private GUITexture screenpointer;
+	
+	//scripts
 	private RayCastScript raycastscript;
+	private RotateScript rotateScript;
+	private ScaleScript scaleScript;
+	
+	//last object selected
 	private GameObject lastGameObjectHit;
 	// Use this for initialization
 	void Start () {
 		//Set ref script
 		raycastscript = gameObject.GetComponent("RayCastScript") as RayCastScript;
+		rotateScript = gameObject.GetComponent("RotateScript") as RotateScript;
+		scaleScript = gameObject.GetComponent("ScaleScript") as ScaleScript;
 		
 		//Turn off mouse pointer and set the cursorImage
 		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
@@ -60,8 +69,22 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraUp();
 		if (Input.GetKey ("l"))
 			rotateCameraDown();*/
-		if (Input.GetButton("Fire1"))
-			raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
+		if (Input.GetButton("Fire1")){
+			lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
+			rotateScript.selectedObject = lastGameObjectHit;
+			scaleScript.selectedObject = lastGameObjectHit;
+		}
+		//rotate
+		if (Input.GetKey("-"))
+			rotateScript.RotateLeft();
+		if (Input.GetKey("="))
+			rotateScript.RotateRight();
+		//scale
+		if (Input.GetKey("["))
+			scaleScript.ScaleXSmaller();
+		if (Input.GetKey("]"))
+			scaleScript.ScaleXBigger();
+				
 		
 		//Set the gui shizzle
 		Vector3 mousePos= Input.mousePosition;

@@ -17,7 +17,7 @@ public class ScaleScript : MonoBehaviour {
 	
 	public void ScaleXBigger(){
 		//selectedObject.transform.localScale += Vector3(scaleStep,0,0);
-		selectedObject.transform.lossyScale.x = 1 + scaleStep;
+		//selectedObject.transform.lossyScale.x = 1 + scaleStep;
 	}
 	
 	public void ScaleYBigger(){
@@ -31,7 +31,7 @@ public class ScaleScript : MonoBehaviour {
 		
 	public void ScaleXSmaller(){
 		//selectedObject.transform.Scale(-scaleStep,0,0);
-		selectedObject.transform.lossyScale.x = 1 - scaleStep;
+		//selectedObject.transform.lossyScale.x = 1 - scaleStep;
 	}
 	
 	public void ScaleYSmaller(){
