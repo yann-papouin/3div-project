@@ -51,6 +51,10 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraLeft();
 		if (Input.GetKey ("h"))
 			rotateCameraRight();
+		if (Input.GetKey ("o"))
+			rotateCameraUp();
+		if (Input.GetKey ("l"))
+			rotateCameraDown();
 		if (Input.GetButton("Fire1"))
 			raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
 		
@@ -108,6 +112,20 @@ public class KeyBoardController : MonoBehaviour {
 		Debug.Log("Rotate camera left");
 		
 		playerCam.transform.Rotate(0,-rotateStep,0);
+	}
+	
+	private void rotateCameraUp()
+	{
+		Debug.Log("Rotate camera up");
+		
+		playerCam.transform.Rotate(rotateStep,0,0);
+	}
+	
+		private void rotateCameraDown()
+	{
+		Debug.Log("Rotate camera down");
+		
+		playerCam.transform.Rotate(-rotateStep,0,0);
 	}
 	
 	private void rotateCameraRight()
