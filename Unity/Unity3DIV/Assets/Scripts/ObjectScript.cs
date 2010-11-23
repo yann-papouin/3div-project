@@ -1,10 +1,13 @@
 using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ObjectScript : MonoBehaviour {
 	public bool canMove;
 	public bool canScale;
 	public bool canRotate;
+	public bool canBeStackedOn;
 	
 	public bool canBeDeleted;	
 	public bool canBeCloned;	
@@ -34,8 +37,8 @@ public class ObjectScript : MonoBehaviour {
 	
 	}
 	
-	Dictionary getObjectPossibilities(){
-		Dictionary result = new Dictionary<string, bool>;
+	public Dictionary<string, bool> getObjectPossibilities(){
+		Dictionary<string, bool> result = new Dictionary<string, bool>();
 		result["move"] = canMove;
 		result["rotate"] = canRotate;
 		result["scale"] = canScale;
