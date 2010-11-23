@@ -51,6 +51,11 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraLeft();
 		if (Input.GetKey ("h"))
 			rotateCameraRight();
+		if (Input.GetKey ("t")){
+			TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
+			script.test();
+		}
+		
 		/*if (Input.GetKey ("o"))
 			rotateCameraUp();
 		if (Input.GetKey ("l"))
