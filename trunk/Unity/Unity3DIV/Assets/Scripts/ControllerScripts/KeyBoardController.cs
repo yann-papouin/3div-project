@@ -51,10 +51,10 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraLeft();
 		if (Input.GetKey ("h"))
 			rotateCameraRight();
-		if (Input.GetKey ("o"))
+		/*if (Input.GetKey ("o"))
 			rotateCameraUp();
 		if (Input.GetKey ("l"))
-			rotateCameraDown();
+			rotateCameraDown();*/
 		if (Input.GetButton("Fire1"))
 			raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
 		
