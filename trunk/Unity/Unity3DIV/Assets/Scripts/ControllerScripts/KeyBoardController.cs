@@ -75,7 +75,10 @@ public class KeyBoardController : MonoBehaviour {
 				rotateScript.selectedObject = lastGameObjectHit;
 				rotateScript.SetDrawFeedback(true);
 			}
-			scaleScript.selectedObject = lastGameObjectHit;
+			//if (lastGameObjectHit != scaleScript.clone){
+			//	scaleScript.selectedObject = lastGameObjectHit;
+			//	scaleScript.SetDrawFeedback(true, "x");	
+			//}
 		}
 		//rotate
 		if (Input.GetKey("-"))
