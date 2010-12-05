@@ -55,21 +55,15 @@ public class RotateScript : MonoBehaviour {
 	
 	}
 		
-	
 	//links roteren
 	public void RotateLeft(){
 		selectedObject.transform.Rotate(Vector3.up, -rotateStep, Space.World);
 		clone.transform.Rotate(Vector3.up, -rotateStep, Space.World);
-
 	}
 	
 	//rechts roteren
 	public void RotateRight(){
 		selectedObject.transform.Rotate(Vector3.up, rotateStep, Space.World);
 		clone.transform.Rotate(Vector3.up, rotateStep, Space.World);
-	}
-	
-	public void DrawcirkelRondObject(){
-			
 	}
 }
