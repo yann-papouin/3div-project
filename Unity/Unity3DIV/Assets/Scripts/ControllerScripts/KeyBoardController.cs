@@ -31,7 +31,7 @@ public class KeyBoardController : MonoBehaviour {
 		
 		//Turn off mouse pointer and set the cursorImage
 		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
-		Screen.showCursor = false;
+		Screen.showCursor = false; 
 		screenpointer.texture = cursorImage;
 		screenpointer.color = Color.red;
 		screenpointer.pixelInset = new Rect(10,10,10,10);
@@ -71,7 +71,10 @@ public class KeyBoardController : MonoBehaviour {
 			rotateCameraDown();*/
 		if (Input.GetButton("Fire1")){
 			lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
-			rotateScript.selectedObject = lastGameObjectHit;
+			if (lastGameObjectHit != rotateScript.clone){
+				rotateScript.selectedObject = lastGameObjectHit;
+				rotateScript.SetDrawFeedback(true);
+			}
 			scaleScript.selectedObject = lastGameObjectHit;
 		}
 		//rotate
@@ -84,6 +87,14 @@ public class KeyBoardController : MonoBehaviour {
 			scaleScript.ScaleXSmaller();
 		if (Input.GetKey("]"))
 			scaleScript.ScaleXBigger();
+		if (Input.GetKey(";"))
+			scaleScript.ScaleYSmaller();
+		if (Input.GetKey("'"))
+			scaleScript.ScaleYBigger();
+			if (Input.GetKey("."))
+			scaleScript.ScaleZSmaller();
+		if (Input.GetKey("/"))
+			scaleScript.ScaleZBigger();
 				
 		
 		//Set the gui shizzle
