@@ -3,6 +3,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
+// This script is a data structure for a game object.
+// Each object should have an instance of this script.
+// Other scripts may use this script for manipulating objects.
 public class ObjectScript : MonoBehaviour {
 	public bool canMove;
 	public bool canScale;
@@ -12,8 +15,19 @@ public class ObjectScript : MonoBehaviour {
 	public bool canBeDeleted;	
 	public bool canBeCloned;	
 	
+	// for positioning other objects onto this one
+	public int gridSizeSmallSide;
+	public int gridSizeLargeSide;		
+	public ArrayList children; // GameObjects
+	public string[] possibleChildren; // strings for the names
+	
+	// for positioning this object onto another one
+	public int posInGridSmallSide;
+	public int posInGridLargeSide;
+	public GameObject parent; // if parent == gameObject -> no parent
+	
 	// for cloning
-	public int cloneID;	// original items -> ID == 0
+	public int cloneID;	// original item -> ID == 0
 	private int lastUsedCloneID;
 	private GameObject original;
 
@@ -30,6 +44,14 @@ public class ObjectScript : MonoBehaviour {
 		cloneID = 0;
 		lastUsedCloneID = 0;
 		original = gameObject;
+		
+		gridSizeSmallSide = 0;
+		gridSizeLargeSide = 0;
+		posInGridLargeSide = 0;
+		posInGridSmallSide = 0;
+		children = new ArrayList();
+		parent = gameObject;
+		possibleChildren = new string[50];
 	}
 	
 	// Update is called once per frame
@@ -49,9 +71,53 @@ public class ObjectScript : MonoBehaviour {
 		return result;
 	}		
 	
+	public bool isGridCellAvailable(int posLargeSide, int posSmallSide){
+		if(canBeStackedOn){
+			 foreach (GameObject item in children) {
+				ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
+				if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide)
+					return false;
+			}
+			
+			return true;
+		}	
+		else return false;
+	}
+	
+	public void removeChildFromGridCell(int posLargeSide, int posSmallSide){
+		GameObject toBeRemoved = gameObject;
+		bool found = false;
+		
+		foreach (GameObject item in children) {
+			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
+			if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide){
+				toBeRemoved = item;
+				found = true;
+			}
+		}
+		
+		if(found)
+			children.Remove(toBeRemoved);
+	}
+	
+	public void removeChildFromGrid(GameObject child){
+		children.Remove(child);
+	}
+	
+	public GameObject getChildFromGridCell(int posLargeSide, int posSmallSide){
+		foreach (GameObject item in children) {
+			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
+			if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide){
+				return item;
+			}
+		}
+		
+		return new GameObject("dummy");
+	}
+	
 	public void addChild(GameObject child){
 		child.transform.parent = transform;
-	}
+	}	
 	
 	public void setParent(GameObject parent_){
 		transform.parent = parent_.transform;
@@ -74,6 +140,11 @@ public class ObjectScript : MonoBehaviour {
 		canRotate = origScript.canRotate;
 		canBeStackedOn = origScript.canBeStackedOn;
 		
+		gridSizeSmallSide = origScript.gridSizeSmallSide;
+		gridSizeLargeSide = origScript.gridSizeLargeSide;
+		posInGridLargeSide = origScript.posInGridLargeSide;
+		posInGridSmallSide = origScript.posInGridSmallSide;
+		
 		canBeDeleted = true;
 		canBeCloned = false;
 		
@@ -82,5 +153,5 @@ public class ObjectScript : MonoBehaviour {
 		original = orig;
 		
 		name = orig.name + cloneID;
-	}
+	}	
 }
