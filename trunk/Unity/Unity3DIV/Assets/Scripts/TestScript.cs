@@ -23,4 +23,12 @@ public class TestScript : MonoBehaviour {
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
 		cloneScript.setParentTransform(Camera.main.transform);
 	}
+	
+	public void testStack(){
+		GameObject tafel = GameObject.Find("Tafel");
+		
+		GameObject ic = GameObject.Find("InputController");
+		StackScript sscript = (StackScript)ic.GetComponent("StackScript");
+		sscript.Begin(tafel);
+	}
 }

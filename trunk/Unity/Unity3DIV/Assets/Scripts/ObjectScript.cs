@@ -16,10 +16,12 @@ public class ObjectScript : MonoBehaviour {
 	public bool canBeCloned;	
 	
 	// for positioning other objects onto this one
+	public string localUpAxis;
 	public int gridSizeSmallSide;
 	public int gridSizeLargeSide;		
 	public ArrayList children; // GameObjects
-	public string[] possibleChildren; // strings for the names
+	// strings for the names of clonable objects that can be a child of this object
+	public string[] possibleChildren; 
 	
 	// for positioning this object onto another one
 	public int posInGridSmallSide;
@@ -33,11 +35,6 @@ public class ObjectScript : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		canMove = false;
-		canScale = false;
-		canRotate = false;
-		canBeStackedOn = false;
-	
 		canBeDeleted = false;	
 		canBeCloned = true;	
 		
@@ -45,13 +42,12 @@ public class ObjectScript : MonoBehaviour {
 		lastUsedCloneID = 0;
 		original = gameObject;
 		
-		gridSizeSmallSide = 0;
-		gridSizeLargeSide = 0;
-		posInGridLargeSide = 0;
-		posInGridSmallSide = 0;
+		//gridSizeSmallSide = 0;
+		//gridSizeLargeSide = 0;
+		posInGridLargeSide = -1;
+		posInGridSmallSide = -1;
 		children = new ArrayList();
 		parent = gameObject;
-		possibleChildren = new string[50];
 	}
 	
 	// Update is called once per frame
