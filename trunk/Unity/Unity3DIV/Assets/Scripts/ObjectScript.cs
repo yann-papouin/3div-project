@@ -80,6 +80,14 @@ public class ObjectScript : MonoBehaviour {
 		else return false;
 	}
 	
+	public void delete(){
+		foreach (GameObject child in children) {
+			ObjectScript script = (ObjectScript) child.GetComponent("ObjectScript");	
+			script.delete();
+		}	
+		gameObject.active = false;
+	}
+	
 	public void removeChildFromGridCell(int posLargeSide, int posSmallSide){
 		GameObject toBeRemoved = gameObject;
 		bool found = false;

@@ -20,6 +20,7 @@ public class KeyBoardController : MonoBehaviour {
 	private RotateScript rotateScript;
 	private ScaleScript scaleScript;
 	private StackScript stackScript;
+	private VerwijderScript verwijderScript;
 	
 	private float prevTimeStamp;
 	private float pollingInterval;
@@ -33,6 +34,7 @@ public class KeyBoardController : MonoBehaviour {
 		rotateScript = gameObject.GetComponent("RotateScript") as RotateScript;
 		scaleScript = gameObject.GetComponent("ScaleScript") as ScaleScript;
 		stackScript = gameObject.GetComponent("StackScript") as StackScript;
+		verwijderScript = gameObject.GetComponent("VerwijderScript") as VerwijderScript;
 		
 		//Turn off mouse pointer and set the cursorImage
 		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
@@ -43,7 +45,7 @@ public class KeyBoardController : MonoBehaviour {
 		screenpointer.transform.localScale -= new Vector3(1, 1, 0);
 		
 		prevTimeStamp = Time.realtimeSinceStartup;
-		pollingInterval = 0.5f;
+		pollingInterval = 0.01f;
 	}
 	
 	// Update is called once per frame
@@ -93,11 +95,13 @@ public class KeyBoardController : MonoBehaviour {
 				if (lastGameObjectHit != rotateScript.clone){
 					rotateScript.selectedObject = lastGameObjectHit;
 					rotateScript.SetDrawFeedback(true);
+					
+					scaleScript.selectedObject = lastGameObjectHit;
+					scaleScript.SetDrawFeedback(true, 'x');	
 				}
-				//if (lastGameObjectHit != scaleScript.clone){
-				//	scaleScript.selectedObject = lastGameObjectHit;
-				//	scaleScript.SetDrawFeedback(true, "x");	
-				//}
+				
+				
+				
 			}
 			//rotate
 			if (Input.GetKey("-"))
@@ -106,18 +110,14 @@ public class KeyBoardController : MonoBehaviour {
 				rotateScript.RotateRight();
 			//scale
 			if (Input.GetKey("["))
-				scaleScript.ScaleXSmaller();
+				scaleScript.ScaleGroter();
 			if (Input.GetKey("]"))
-				scaleScript.ScaleXBigger();
-			if (Input.GetKey(";"))
-				scaleScript.ScaleYSmaller();
-			if (Input.GetKey("'"))
-				scaleScript.ScaleYBigger();
-				if (Input.GetKey("."))
-				scaleScript.ScaleZSmaller();
-			if (Input.GetKey("/"))
-				scaleScript.ScaleZBigger();
-					
+				scaleScript.ScaleKleiner();
+				
+			//delete
+			if (Input.GetKey ("x"))
+				verwijderScript.DeleteObject(lastGameObjectHit);	
+								
 			
 			//Set the gui shizzle
 			Vector3 mousePos= Input.mousePosition;
@@ -125,10 +125,10 @@ public class KeyBoardController : MonoBehaviour {
 			float mouseY = mousePos.y/Screen.height;
 			//Debug.Log(mouseX + "\t" + mouseY);
 			//screenpointer.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
-			//screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
+			screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
 			//screenpointer.transform.position = mouseY;
-			//Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
-			//GUI.Label(cursloc, cursorImage);
+			Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
+			GUI.Label(cursloc, cursorImage);
 		}
 	}
 	
