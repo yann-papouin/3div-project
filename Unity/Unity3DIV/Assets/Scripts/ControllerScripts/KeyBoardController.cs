@@ -2,11 +2,9 @@ using UnityEngine;
 using System.Collections;
 
 public class KeyBoardController : MonoBehaviour {
-
 	public GameObject playerCam; 
 	public float moveStep = 0.5f;
-	public float rotateStep = 2.0f;
-	
+	public float rotateStep = 2.0f;	
 	
 	//Similar to wiimote texture
 	public Texture2D cursorImage;
@@ -20,13 +18,10 @@ public class KeyBoardController : MonoBehaviour {
 	private RotateScript rotateScript;
 	private ScaleScript scaleScript;
 	private StackScript stackScript;
-	private VerwijderScript verwijderScript;
-	
-	private float prevTimeStamp;
-	private float pollingInterval;
 	
 	//last object selected
 	private GameObject lastGameObjectHit;
+	
 	// Use this for initialization
 	void Start () {
 		//Set ref script
@@ -34,7 +29,6 @@ public class KeyBoardController : MonoBehaviour {
 		rotateScript = gameObject.GetComponent("RotateScript") as RotateScript;
 		scaleScript = gameObject.GetComponent("ScaleScript") as ScaleScript;
 		stackScript = gameObject.GetComponent("StackScript") as StackScript;
-		verwijderScript = gameObject.GetComponent("VerwijderScript") as VerwijderScript;
 		
 		//Turn off mouse pointer and set the cursorImage
 		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
@@ -43,93 +37,88 @@ public class KeyBoardController : MonoBehaviour {
 		screenpointer.color = Color.red;
 		screenpointer.pixelInset = new Rect(10,10,10,10);
 		screenpointer.transform.localScale -= new Vector3(1, 1, 0);
-		
-		prevTimeStamp = Time.realtimeSinceStartup;
-		pollingInterval = 0.01f;
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		if(Time.realtimeSinceStartup - prevTimeStamp > pollingInterval){
-			prevTimeStamp = Time.realtimeSinceStartup;
-	
-			if (Input.GetAxis("Horizontal") < 0 )
-				moveCameraLeft();
-			else if (Input.GetAxis("Horizontal") > 0)
-				moveCameraRight();
+	void Update () {	
+		if (Input.GetAxis("Horizontal") < 0 )
+			moveCameraLeft();
+		else if (Input.GetAxis("Horizontal") > 0)
+			moveCameraRight();		
+		if (Input.GetAxis("Vertical") > 0)
+			zoomCameraOut();		
+		if (Input.GetKey ("left"))
+			moveCameraLeft();
+		if (Input.GetKey ("right"))
+			moveCameraRight();
+		if (Input.GetKey ("up"))
+			moveCameraForward();
+		if (Input.GetKey ("down"))
+			moveCameraBackward();
+		if (Input.GetKey ("g"))
+			rotateCameraLeft();
+		if (Input.GetKey ("h"))
+			rotateCameraRight();
 			
-			if (Input.GetAxis("Vertical") > 0)
-				zoomCameraOut();
-			
-			if (Input.GetKey ("left"))
-				moveCameraLeft();
-			if (Input.GetKey ("right"))
-				moveCameraRight();
-			if (Input.GetKey ("up"))
-				moveCameraForward();
-			if (Input.GetKey ("down"))
-				moveCameraBackward();
-			if (Input.GetKey ("g"))
-				rotateCameraLeft();
-			if (Input.GetKey ("h"))
-				rotateCameraRight();
-			if (Input.GetKey ("t")){
-				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
-				script.testStack();
-			}
-			if (Input.GetKey ("y")){
-				StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
-				script.goToNextPosition();
-			}
-			if (Input.GetKey ("u")){
-				StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
-				script.goToNextPossibleStackedObject();
-			}
-			
-			/*if (Input.GetKey ("o"))
-				rotateCameraUp();
-			if (Input.GetKey ("l"))
-				rotateCameraDown();*/
-			if (Input.GetButton("Fire1")){
-				lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
-				if (lastGameObjectHit != rotateScript.clone){
-					rotateScript.selectedObject = lastGameObjectHit;
-					rotateScript.SetDrawFeedback(true);
-					
-					scaleScript.selectedObject = lastGameObjectHit;
-					scaleScript.SetDrawFeedback(true, 'x');	
-				}
-				
-				
-				
-			}
-			//rotate
-			if (Input.GetKey("-"))
-				rotateScript.RotateLeft();
-			if (Input.GetKey("="))
-				rotateScript.RotateRight();
-			//scale
-			if (Input.GetKey("["))
-				scaleScript.ScaleGroter();
-			if (Input.GetKey("]"))
-				scaleScript.ScaleKleiner();
-				
-			//delete
-			if (Input.GetKey ("x"))
-				verwijderScript.DeleteObject(lastGameObjectHit);	
-								
-			
-			//Set the gui shizzle
-			Vector3 mousePos= Input.mousePosition;
-			float mouseX = mousePos.x/Screen.width;
-			float mouseY = mousePos.y/Screen.height;
-			//Debug.Log(mouseX + "\t" + mouseY);
-			//screenpointer.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
-			screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
-			//screenpointer.transform.position = mouseY;
-			Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
-			GUI.Label(cursloc, cursorImage);
+		// stacking	
+		if (Input.GetKeyUp ("t")){
+			TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
+			script.testStack();
 		}
+		if (Input.GetKeyUp ("y")){
+			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
+			script.goToNextAvailablePosition();
+		}
+		if (Input.GetKeyUp ("u")){
+			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
+			script.goToNextPossibleStackedObject();
+		}
+		if (Input.GetKeyUp ("i")){
+			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
+			script.Abort();
+		}
+		
+		if (Input.GetButton("Fire1")){
+			lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
+			if (lastGameObjectHit != rotateScript.clone){
+				rotateScript.selectedObject = lastGameObjectHit;
+				rotateScript.SetDrawFeedback(true);
+			}
+			//if (lastGameObjectHit != scaleScript.clone){
+			//	scaleScript.selectedObject = lastGameObjectHit;
+			//	scaleScript.SetDrawFeedback(true, "x");	
+			//}
+		}
+		//rotate
+		if (Input.GetKey("-"))
+			rotateScript.RotateLeft();
+		if (Input.GetKey("="))
+			rotateScript.RotateRight();
+		//scale
+		/*if (Input.GetKey("["))
+			scaleScript.ScaleXSmaller();
+		if (Input.GetKey("]"))
+			scaleScript.ScaleXBigger();
+		if (Input.GetKey(";"))
+			scaleScript.ScaleYSmaller();
+		if (Input.GetKey("'"))
+			scaleScript.ScaleYBigger();
+			if (Input.GetKey("."))
+			scaleScript.ScaleZSmaller();
+		if (Input.GetKey("/"))
+			scaleScript.ScaleZBigger();*/
+				
+		
+		//Set the gui shizzle
+		Vector3 mousePos= Input.mousePosition;
+		float mouseX = mousePos.x/Screen.width;
+		float mouseY = mousePos.y/Screen.height;
+		//Debug.Log(mouseX + "\t" + mouseY);
+		//screenpointer.transform.position = new Vector3(Screen.width/2, Screen.height/2, 0);
+		//screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
+		//screenpointer.transform.position = mouseY;
+		//Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
+		//GUI.Label(cursloc, cursorImage);
 	}
 	
 	//COPYPASTA

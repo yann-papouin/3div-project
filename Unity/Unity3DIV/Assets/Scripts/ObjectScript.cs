@@ -14,18 +14,22 @@ public class ObjectScript : MonoBehaviour {
 	
 	public bool canBeDeleted;	
 	public bool canBeCloned;	
+	public int topViewDistance;	 //distance to move the camera upwards
 	
 	// for positioning other objects onto this one
 	public string localUpAxis;
-	public int gridSizeSmallSide;
-	public int gridSizeLargeSide;		
+	public string localAxisLeftRight; // or: for dividing into columns
+	public string localAxisTopDown; // or: for dividing into rows
+	
+	public int gridSizeLeftRight;
+	public int gridSizeTopBottom;		
 	public ArrayList children; // GameObjects
 	// strings for the names of clonable objects that can be a child of this object
 	public string[] possibleChildren; 
 	
 	// for positioning this object onto another one
-	public int posInGridSmallSide;
-	public int posInGridLargeSide;
+	public int colInGrid; // == index on localAxisLeftRight
+	public int rowInGrid; // == index on localAxisTopDown
 	public GameObject parent; // if parent == gameObject -> no parent
 	
 	// for cloning
@@ -42,10 +46,8 @@ public class ObjectScript : MonoBehaviour {
 		lastUsedCloneID = 0;
 		original = gameObject;
 		
-		//gridSizeSmallSide = 0;
-		//gridSizeLargeSide = 0;
-		posInGridLargeSide = -1;
-		posInGridSmallSide = -1;
+		colInGrid = -1;
+		rowInGrid = -1;
 		children = new ArrayList();
 		parent = gameObject;
 	}
@@ -54,6 +56,51 @@ public class ObjectScript : MonoBehaviour {
 	void Update () {
 	
 	}
+	
+	public void changeToTopview(){
+		Vector3 pos = transform.position;
+		pos.y += topViewDistance;
+		Vector3 rot = transform.eulerAngles;	
+
+		Camera.main.transform.position = pos;	
+		Camera.main.transform.rotation = Quaternion.identity;	
+		float angle = 0.0f;
+		
+		Vector3 rotp = new Vector3(90,0,0);
+		Camera.main.transform.Rotate (rotp, Space.World);
+		
+		// make sure topDown en leftRight are correctly shown
+		switch(localAxisLeftRight[0]){
+			case 'X':
+				angle = Vector3.Angle(Camera.main.transform.right, transform.right);
+				break;
+			case 'Y':
+				angle = Vector3.Angle(Camera.main.transform.right, transform.up);
+				break;
+			case 'Z':
+				angle = Vector3.Angle(Camera.main.transform.right, transform.forward);
+				break;
+		}		
+				
+		rotp = new Vector3(0,angle,0);
+		Camera.main.transform.Rotate (rotp, Space.World);
+		
+		bool flip = false;
+		switch(localAxisLeftRight[0]){
+			case 'X':
+				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.right)) > 2.0f;
+				break;
+			case 'Y':
+				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.up)) > 2.0f;
+				break;
+			case 'Z':
+				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.forward)) > 2.0f;
+				break;
+		}
+		if(flip){
+			Camera.main.transform.Rotate (-2*rotp, Space.World);
+		}
+	}	
 	
 	public Dictionary<string, bool> getObjectPossibilities(){
 		Dictionary<string, bool> result = new Dictionary<string, bool>();
@@ -67,11 +114,11 @@ public class ObjectScript : MonoBehaviour {
 		return result;
 	}		
 	
-	public bool isGridCellAvailable(int posLargeSide, int posSmallSide){
+	public bool isGridCellAvailable(int pcolInGrid, int prowInGrid){
 		if(canBeStackedOn){
 			 foreach (GameObject item in children) {
 				ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-				if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide)
+				if(script.colInGrid == pcolInGrid && script.rowInGrid == prowInGrid)
 					return false;
 			}
 			
@@ -88,13 +135,13 @@ public class ObjectScript : MonoBehaviour {
 		gameObject.active = false;
 	}
 	
-	public void removeChildFromGridCell(int posLargeSide, int posSmallSide){
+public void removeChildFromGridCell(int pcolInGrid, int prowInGrid){
 		GameObject toBeRemoved = gameObject;
 		bool found = false;
 		
 		foreach (GameObject item in children) {
 			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-			if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide){
+			if(script.colInGrid == pcolInGrid && script.rowInGrid == prowInGrid){
 				toBeRemoved = item;
 				found = true;
 			}
@@ -108,10 +155,10 @@ public class ObjectScript : MonoBehaviour {
 		children.Remove(child);
 	}
 	
-	public GameObject getChildFromGridCell(int posLargeSide, int posSmallSide){
+	public GameObject getChildFromGridCell(int pcolInGrid, int prowInGrid){
 		foreach (GameObject item in children) {
 			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-			if(script.posInGridLargeSide == posLargeSide && script.posInGridSmallSide == posInGridSmallSide){
+			if(script.colInGrid == pcolInGrid && script.rowInGrid == prowInGrid){
 				return item;
 			}
 		}
@@ -143,11 +190,18 @@ public class ObjectScript : MonoBehaviour {
 		canScale = origScript.canScale;
 		canRotate = origScript.canRotate;
 		canBeStackedOn = origScript.canBeStackedOn;
+		topViewDistance = origScript.topViewDistance;
+	
+		localUpAxis = origScript.localUpAxis;
+		localAxisLeftRight = origScript.localAxisLeftRight; 
+		localAxisTopDown = origScript.localAxisTopDown; 
+		gridSizeLeftRight = origScript.gridSizeLeftRight;
+		gridSizeTopBottom = origScript.gridSizeTopBottom;		
+		children = new ArrayList();
+		possibleChildren = origScript.possibleChildren; 
 		
-		gridSizeSmallSide = origScript.gridSizeSmallSide;
-		gridSizeLargeSide = origScript.gridSizeLargeSide;
-		posInGridLargeSide = origScript.posInGridLargeSide;
-		posInGridSmallSide = origScript.posInGridSmallSide;
+		colInGrid = -1;
+		rowInGrid = -1; 
 		
 		canBeDeleted = true;
 		canBeCloned = false;
