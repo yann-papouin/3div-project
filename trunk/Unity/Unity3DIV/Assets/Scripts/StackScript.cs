@@ -1,17 +1,25 @@
 using UnityEngine;
 using System.Collections;
+using System;
 
+// when executing functions of this script -> assume view = topview
+// left-right axis of selectedObject points to the right
 public class StackScript : MonoBehaviour {
-	private GameObject selectedObject;
-	private ObjectScript scriptOfSelectedObject;	
 	private bool isActive;	
+	private GameObject selectedObject;
+	private ObjectScript scriptOfSelectedObject;		
 	private ArrayList lines;
 	private int currentIndexOfPossibleStackedObject;
 	private GameObject currentPossibleStackedObject;
 	private ObjectScript scriptOfCurrentPossibleStackedObject;
-	private int currPosInGridSmallSide;
-	private int currPosInGridLargeSide;
+	private int currRowInGrid, currColInGrid;
+	private float currLeftRightOnObject, currTopDownOnObject;
 	private Vector3 currPointInGridGlobalCoords, currPointInGridLocalCoords;
+	private bool topDownAxisInverted;
+	
+	// storing previous camera view
+	private Vector3 prevPosCamera;
+	private Quaternion prevRotCamera;
 
 	// Use this for initialization
 	void Start () {
@@ -22,30 +30,39 @@ public class StackScript : MonoBehaviour {
 	}	
 	
 	public void Begin(GameObject carrier){
-		isActive = true;
-		selectedObject = carrier;
-		scriptOfSelectedObject = (ObjectScript) selectedObject.GetComponent("ObjectScript");	
-		currentIndexOfPossibleStackedObject = 0;
-
-		if(!scriptOfSelectedObject || scriptOfSelectedObject.possibleChildren.Length == 0 || scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject].Length == 0){
-			isActive = false;
-			return;
+		if(!isActive){
+			isActive = true;
+			selectedObject = carrier;
+			scriptOfSelectedObject = (ObjectScript) selectedObject.GetComponent("ObjectScript");	
+			currentIndexOfPossibleStackedObject = 0;
+			prevPosCamera = Camera.main.transform.position;
+			prevRotCamera = Camera.main.transform.rotation;
+			
+			if(!scriptOfSelectedObject || scriptOfSelectedObject.possibleChildren.Length == 0 || scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject].Length == 0){
+				isActive = false;
+				return;
+			}
+						
+			scriptOfSelectedObject.changeToTopview();
+			topDownAxisInverted = topDownAxisIsInverted();
+			goToFirstAvailablePosition();		
 		}
-		
-		bool found = false;
-		for(currPosInGridSmallSide = 0; currPosInGridSmallSide < scriptOfSelectedObject.gridSizeSmallSide && !found; ++currPosInGridSmallSide){
-			for(currPosInGridLargeSide = 0; currPosInGridLargeSide < scriptOfSelectedObject.gridSizeLargeSide && !found; ++currPosInGridLargeSide)
-				if(scriptOfSelectedObject.isGridCellAvailable(currPosInGridLargeSide, currPosInGridSmallSide) == true)
-					found = true;			
-		}			
-		
-		if(found == false)
-			Abort();
-		
-		Debug.Log("posL: " + currPosInGridLargeSide + ", posS: " + currPosInGridSmallSide);		
-		drawGrid();		
-		
-		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+	}
+	
+	private bool topDownAxisIsInverted(){
+		bool result = false;
+		switch(scriptOfSelectedObject.localAxisTopDown[0]){
+			case 'X':
+				result = Math.Abs(Vector3.Angle(Camera.main.transform.up,selectedObject.transform.right)) > 2.0f;
+				break;
+			case 'Y':
+				result = Math.Abs(Vector3.Angle(Camera.main.transform.up,selectedObject.transform.up)) > 2.0f;
+				break;
+			case 'Z':
+				result = Math.Abs(Vector3.Angle(Camera.main.transform.up, selectedObject.transform.forward)) > 2.0f;
+				break;
+		}
+		return result;
 	}
 	
 	public void goToNextPossibleStackedObject(){
@@ -64,34 +81,76 @@ public class StackScript : MonoBehaviour {
 			
 		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);			
 	}
-	
-	public void chooseCurrentObject(){
-		if(!isActive)
-			return;
+		
+	public void goToNextAvailablePositionLeft(){
 	}
 	
-	public void goToNextPosition(){
+	public void goToNextAvailablePositionRight(){
+	}
+	
+	public void goToNextAvailablePositionTop(){
+	}
+	
+	public void goToNextAvailablePositionDown(){
+	}
+	
+	public void goToNextAvailablePosition(){
 		if(!isActive)
 			return;
 			
 		bool found = false;
 		bool first = true;
-		for(; currPosInGridSmallSide < scriptOfSelectedObject.gridSizeSmallSide && !found; ++currPosInGridSmallSide){
+		currColInGrid++;
+		if(currColInGrid >= scriptOfSelectedObject.gridSizeLeftRight){
+			currColInGrid = 0;
+			currRowInGrid++;
+		}		
+		
+		for(int i = currRowInGrid; i < scriptOfSelectedObject.gridSizeTopBottom && !found; i++){
 			if(!first)
-				currPosInGridLargeSide = 0;
-			else first = false;
-			for(; currPosInGridLargeSide < scriptOfSelectedObject.gridSizeLargeSide && !found; ++currPosInGridLargeSide)
-				if(scriptOfSelectedObject.isGridCellAvailable(currPosInGridLargeSide, currPosInGridSmallSide) == true)
-					found = true;			
+				currColInGrid = 0;
+			else 
+				first = false;
+			for(int j = currColInGrid; j < scriptOfSelectedObject.gridSizeLeftRight && !found; j++){
+				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
+					found = true;
+					currRowInGrid = i;
+					currColInGrid = j;
+					Debug.Log("found posL: " + currColInGrid + ", posS: " + currRowInGrid);	
+				}
+				else
+					Debug.Log("not found posL: " + currColInGrid + ", posS: " + currRowInGrid);
+			}
 		}	
 		
 		if(!found){
-			for(currPosInGridSmallSide = 0; currPosInGridSmallSide < scriptOfSelectedObject.gridSizeSmallSide && !found; ++currPosInGridSmallSide){
-				for(currPosInGridLargeSide = 0; currPosInGridLargeSide < scriptOfSelectedObject.gridSizeLargeSide && !found; ++currPosInGridLargeSide)
-					if(scriptOfSelectedObject.isGridCellAvailable(currPosInGridLargeSide, currPosInGridSmallSide) == true)
-						found = true;			
+			goToFirstAvailablePosition();
+		}			
+		
+		drawGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+	}	
+	
+	private void goToFirstAvailablePosition(){
+		if(!isActive)
+			return;
+			
+		bool found = false;						
+		for(int i = 0; i < scriptOfSelectedObject.gridSizeTopBottom && !found; i++){
+			for(int j = 0; j < scriptOfSelectedObject.gridSizeLeftRight && !found; j++){
+				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
+					found = true;			
+					currRowInGrid = i;
+					currColInGrid = j;
+					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+				}
+				else
+					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
 			}	
 		}
+		
+		if(found == false)
+			Abort();
 			
 		drawGrid();
 		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
@@ -122,6 +181,9 @@ public class StackScript : MonoBehaviour {
 			Destroy(obj);
 		}
 		lines.Clear();
+				
+		Camera.main.transform.position = prevPosCamera;
+		Camera.main.transform.rotation = prevRotCamera;
 	}
 	
 	// Update is called once per frame
@@ -147,7 +209,9 @@ public class StackScript : MonoBehaviour {
 	
 	private void drawGrid(){	
 		if(!isActive)
-			return;
+			return;		
+		
+		Debug.Log("col: " + currColInGrid + ", row: " + currRowInGrid);	
 			
 		/**
 		**	REMOVE THE PREVIOUSLY CALCULATED LINES
@@ -156,49 +220,45 @@ public class StackScript : MonoBehaviour {
 			Destroy(obj);
 		}
 		lines.Clear();
-	
-		char largeSideInLocalAxes = getLargestHorizontalSide();
-		char smallSideInLocalAxes = getSmallestHorizontalSide();
-		char localY = getLocalAxisSameAsGlobalY();		
 		
 		Vector3 scale = selectedObject.transform.localScale;
 		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
 		Bounds bounds = mesh.bounds;
 		Vector3 size = bounds.size;
-		float smallLength = 0;
-		float largeLength = 0;
+		float topDownLength = 0;
+		float leftRightLength = 0;
 		float height = 0;
 		
-		switch(smallSideInLocalAxes){			
-			case 'x':
-				smallLength = size.x;//*scale.x;
+		switch(scriptOfSelectedObject.localAxisTopDown[0]){			
+			case 'X':
+				topDownLength = size.x;//*scale.x;
 				break;
-			case 'y':
-				smallLength = size.y;//*scale.y;
+			case 'Y':
+				topDownLength = size.y;//*scale.y;
 				break;
-			case 'z':
-				smallLength = size.z;//*scale.z;
+			case 'Z':
+				topDownLength = size.z;//*scale.z;
+				break;
+		}		
+		switch(scriptOfSelectedObject.localAxisLeftRight[0]){			
+			case 'X':
+				leftRightLength = size.x;//*scale.x;
+				break;
+			case 'Y':
+				leftRightLength = size.y;//*scale.y;
+				break;
+			case 'Z':
+				leftRightLength = size.z;//*scale.z;
 				break;
 		}
-		switch(largeSideInLocalAxes){			
-			case 'x':
-				largeLength = size.x;//*scale.x;
-				break;
-			case 'y':
-				largeLength = size.y;//*scale.y;
-				break;
-			case 'z':
-				largeLength = size.z;//*scale.z;
-				break;
-		}
-		switch(localY){			
-			case 'x':
+		switch(scriptOfSelectedObject.localUpAxis[0]){			
+			case 'X':
 				height = size.x;//*scale.x;
 				break;
-			case 'y':
+			case 'Y':
 				height = size.y;//*scale.y;
 				break;
-			case 'z':
+			case 'Z':
 				height = size.z;//*scale.z;
 				break;
 		}
@@ -206,92 +266,112 @@ public class StackScript : MonoBehaviour {
 		/**
 		**	CALCULATE THE OBJECT POSITION IN THE GRID
 		**/
-		switch(localY){				
-			case 'x':
-				currPointInGridLocalCoords.x = (float) height/2;
+		switch(scriptOfSelectedObject.localUpAxis[0]){				
+			case 'X':
+				currPointInGridLocalCoords.x = bounds.center.x + (float) height/2;
 				break;
-			case 'y':
-				currPointInGridLocalCoords.y = (float) height/2;
+			case 'Y':
+				currPointInGridLocalCoords.y = bounds.center.y + (float) height/2;
 				break;
-			case 'z':
-				currPointInGridLocalCoords.z = (float) height/2;
-				break;
-		}
-		switch(smallSideInLocalAxes){				
-			case 'x':
-				currPointInGridLocalCoords.x = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + currPosInGridSmallSide*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
-				break;
-			case 'y':
-				currPointInGridLocalCoords.y = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + currPosInGridSmallSide*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
-				break;
-			case 'z':
-				currPointInGridLocalCoords.z = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + currPosInGridSmallSide*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
+			case 'Z':
+				currPointInGridLocalCoords.z = bounds.center.z + (float) height/2;
 				break;
 		}
-		switch(largeSideInLocalAxes){				
-			case 'x':
-				currPointInGridLocalCoords.x = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + currPosInGridLargeSide*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
+		switch(scriptOfSelectedObject.localAxisLeftRight[0]){				
+			case 'X':
+				currPointInGridLocalCoords.x = (float) (bounds.center.x  - leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + currColInGrid*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
 				break;
-			case 'y':
-				currPointInGridLocalCoords.y = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + currPosInGridLargeSide*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
+			case 'Y':
+				currPointInGridLocalCoords.y = (float) (bounds.center.y  - leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + currColInGrid*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
 				break;
-			case 'z':
-				currPointInGridLocalCoords.z = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + currPosInGridLargeSide*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
+			case 'Z':
+				currPointInGridLocalCoords.z = (float) (bounds.center.z  - leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + currColInGrid*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
 				break;
 		}
-
+		
+		if(!topDownAxisInverted){
+			Debug.Log("not inverted");
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){				
+				case 'X':
+					currPointInGridLocalCoords.x = (float) (bounds.center.x  - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+				case 'Y':
+					currPointInGridLocalCoords.y = (float) (bounds.center.y  - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+				case 'Z':
+					currPointInGridLocalCoords.z = (float) (bounds.center.z  - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+			}
+		}else{
+			Debug.Log("inverted");
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){				
+				case 'X':
+					currPointInGridLocalCoords.x = (float) (bounds.center.x  + topDownLength/2 - topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) - currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+				case 'Y':
+					currPointInGridLocalCoords.y = (float) (bounds.center.y  + topDownLength/2 - topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) - currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+				case 'Z':
+					currPointInGridLocalCoords.z = (float) (bounds.center.z  + topDownLength/2 - topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) - currRowInGrid*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+			}		
+		}
+		
 		currPointInGridGlobalCoords = selectedObject.transform.TransformPoint(currPointInGridLocalCoords);
 			
 			
 		/**
 		**	DRAW THE LARGE GRID LINES
 		**/
-		for(int row = 0; row < scriptOfSelectedObject.gridSizeSmallSide; ++row)
+		for(int row = 0; row < scriptOfSelectedObject.gridSizeTopBottom; ++row)
 		{
 			Vector3 from = new Vector3(0,0,0);
 			Vector3 to = new Vector3(0,0,0);
-			switch(localY){				
-				case 'x':
-					from.x = (float) height/2;
-					to.x = (float)  height/2;
+			switch(scriptOfSelectedObject.localUpAxis[0]){				
+				case 'X':
+					from.x =  bounds.center.x  + (float) height/2;
+					to.x = bounds.center.x  + (float)  height/2;
 					break;
-				case 'y':
-					from.y = (float) height/2;
-					to.y = (float) height/2;
+				case 'Y':
+					from.y = bounds.center.y  + (float) height/2;
+					to.y = bounds.center.y  + (float) height/2;
 					break;
-				case 'z':
-					from.z = (float) height/2;
-					to.z = (float) height/2;
-					break;
-			}
-			switch(largeSideInLocalAxes){
-				case 'x':
-					from.x = (float) -largeLength/2;
-					to.x = (float) largeLength/2;
-					break;
-				case 'y':
-					from.y = (float) -largeLength/2;
-					to.y = (float) largeLength/2;
-					break;
-				case 'z':
-					from.z = (float) -largeLength/2;
-					to.z = (float) largeLength/2;
+				case 'Z':
+					from.z = bounds.center.z  + (float) height/2;
+					to.z = bounds.center. z + (float) height/2;
 					break;
 			}
-			switch(smallSideInLocalAxes){
-				case 'x':
-					from.x = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
-					to.x = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
+			switch(scriptOfSelectedObject.localAxisLeftRight[0]){
+				case 'X':
+					from.x = bounds.center. x + ((float) -leftRightLength/2);
+					to.x = bounds.center. x + (float) leftRightLength/2;
 					break;
-				case 'y':
-					from.y =(float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
-					to.y = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
+				case 'Y':
+					from.y = bounds.center.y  + ((float) -leftRightLength/2);
+					to.y = bounds.center. y + (float) leftRightLength/2;
 					break;
-				case 'z':
-					from.z = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
-					to.z = (float) (-smallLength/2 + smallLength/(2*scriptOfSelectedObject.gridSizeSmallSide)) + row*(smallLength/scriptOfSelectedObject.gridSizeSmallSide);
+				case 'Z':
+					from.z = bounds.center.z  + ((float) -leftRightLength/2);
+					to.z = bounds.center.z  + (float) leftRightLength/2;
 					break;
 			}
+			
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){
+				case 'X':
+					from.x = (float) (bounds.center.x   - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					to.x = (float) (bounds.center.x   - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					
+					break;
+				case 'Y':
+					from.y =(float) (bounds.center.y   - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					to.y = (float) (bounds.center. y  - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+				case 'Z':
+					from.z = (float) (bounds.center.z   - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					to.z = (float) (bounds.center. z  - topDownLength/2 + topDownLength/(2*scriptOfSelectedObject.gridSizeTopBottom)) + row*(topDownLength/scriptOfSelectedObject.gridSizeTopBottom);
+					break;
+			}
+			
 		
 			Vector3 fromGlobal = selectedObject.transform.TransformPoint(from);
 			Vector3 toGlobal = selectedObject.transform.TransformPoint(to);
@@ -318,50 +398,50 @@ public class StackScript : MonoBehaviour {
 		/**
 		**	DRAW THE SMALL GRID LINES
 		**/
-		for(int col = 0; col < scriptOfSelectedObject.gridSizeLargeSide; ++col)
+		for(int col = 0; col < scriptOfSelectedObject.gridSizeLeftRight; ++col)
 		{
 			Vector3 from = new Vector3(0,0,0);
 			Vector3 to = new Vector3(0,0,0);
-			switch(localY){				
-				case 'x':
-					from.x = (float) height/2;
-					to.x = (float)  height/2;
+			switch(scriptOfSelectedObject.localUpAxis[0]){				
+				case 'X':
+					from.x = bounds.center.x  + (float) height/2;
+					to.x = bounds.center.x  + (float)  height/2;
 					break;
-				case 'y':
-					from.y = (float) height/2;
-					to.y = (float) height/2;
+				case 'Y':
+					from.y = bounds.center.y  +  (float) height/2;
+					to.y = bounds.center. y + (float) height/2;
 					break;
-				case 'z':
-					from.z = (float) height/2;
-					to.z = (float) height/2;
-					break;
-			}
-			switch(largeSideInLocalAxes){
-				case 'x':
-					from.x = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
-					to.x = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
-					break;
-				case 'y':
-					from.y = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
-					to.y = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
-					break;
-				case 'z':
-					from.z = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
-					to.z = (float) (-largeLength/2 + largeLength/(2*scriptOfSelectedObject.gridSizeLargeSide)) + col*(largeLength/scriptOfSelectedObject.gridSizeLargeSide);
+				case 'Z':
+					from.z = bounds.center. z + (float) height/2;
+					to.z = bounds.center.z  + (float) height/2;
 					break;
 			}
-			switch(smallSideInLocalAxes){
-				case 'x':
-					from.x = (float) -smallLength/2;
-					to.x = (float) smallLength/2;
+			switch(scriptOfSelectedObject.localAxisLeftRight[0]){
+				case 'X':
+					from.x = (float) (bounds.center.x  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					to.x = (float) (bounds.center. x + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
 					break;
-				case 'y':
-					from.y =(float) -smallLength/2;
-					to.y = (float) smallLength/2;
+				case 'Y':
+					from.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					to.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
 					break;
-				case 'z':
-					from.z = (float) -smallLength/2;
-					to.z = (float) smallLength/2;
+				case 'Z':
+					from.z = (float) (bounds.center. z + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					to.z = (float) (bounds.center.z  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					break;
+			}
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){
+				case 'X':
+					from.x = bounds.center.x  + (float) -topDownLength/2;
+					to.x = bounds.center.x  + (float) topDownLength/2;
+					break;
+				case 'Y':
+					from.y =bounds.center.y  + (float) -topDownLength/2;
+					to.y = bounds.center.y  + (float) topDownLength/2;
+					break;
+				case 'Z':
+					from.z = bounds.center.z  + (float) -topDownLength/2;
+					to.z = bounds.center.z  + (float) topDownLength/2;
 					break;
 			}
 		
@@ -388,78 +468,4 @@ public class StackScript : MonoBehaviour {
 			//Debug.Log("To: " + toGlobal.x + ", "  + toGlobal.y + ", "  + toGlobal.z);
 		}	
 	}
-	
-	private char getLocalAxisSameAsGlobalY(){	
-		if(selectedObject.transform.up == Vector3.up) // local y is same as global y
-			return 'y';
-		if(selectedObject.transform.forward == Vector3.up) // local z is same as global y
-			return 'z';
-		if(selectedObject.transform.right == Vector3.up) // local x is same as global y
-			return 'x';
-			
-		return 'y';
-	}
-	
-	private char getLargestHorizontalSide(){
-		Vector3 scale = selectedObject.transform.localScale;
-		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
-		Bounds bounds = mesh.bounds;
-		Vector3 size = bounds.size;
-	
-		if(selectedObject.transform.up == Vector3.up) // local y is same as global y
-		{
-			if(size.x*scale.x > size.z*scale.z)
-					return 'x';
-			else 
-				return 'z';
-		}
-		if(selectedObject.transform.forward == Vector3.up) // local z is same as global y
-		{
-			if(size.x*scale.x > size.y*scale.y)
-					return 'x';
-			else 
-				return 'y';
-		}
-		if(selectedObject.transform.right == Vector3.up) // local x is same as global y
-		{
-			if(size.z*scale.z > size.y*scale.y)
-					return 'z';
-			else 
-				return 'y';
-		}
-		
-		return 'y';
-	}
-	
-	private char getSmallestHorizontalSide(){
-		Vector3 scale = selectedObject.transform.localScale;
-		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
-		Bounds bounds = mesh.bounds;
-		Vector3 size = bounds.size;
-	
-		if(selectedObject.transform.up == Vector3.up) // local y is same as global y
-		{
-			if(size.x*scale.x > size.z*scale.z)
-					return 'z';
-			else 
-				return 'x';
-		}
-		if(selectedObject.transform.forward == Vector3.up) // local z is same as global y
-		{
-			if(size.x*scale.x > size.y*scale.y)
-					return 'y';
-			else 
-				return 'x';
-		}
-		if(selectedObject.transform.forward == Vector3.up) // local x is same as global y
-		{
-			if(size.z*scale.z > size.y*scale.y)
-					return 'y';
-			else 
-				return 'z';
-		}
-		
-		return 'y';
-	}
-
 }
