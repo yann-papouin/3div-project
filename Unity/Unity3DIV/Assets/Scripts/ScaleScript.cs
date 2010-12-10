@@ -14,7 +14,9 @@ public class ScaleScript : MonoBehaviour {
 	private Color c2 = Color.blue;
 	private float animatieScale = 1.0f;
 	private bool isAnimatieGroter = true;
-
+	private char[] assen = new char[3];
+	private int asIndex = 0;
+	public bool locked = false;
 
 	
 	// Use this for initialization
@@ -27,6 +29,10 @@ public class ScaleScript : MonoBehaviour {
 			rend.SetWidth(0.5f, 0.5f);
 			rend.SetColors(c1, c2);
 			rend.SetVertexCount(2);
+			
+			assen[0] = 'x';
+			assen[1] = 'z';
+			assen[2] = 'y';
 	}
 	
 	// Update is called once per frame
@@ -34,9 +40,22 @@ public class ScaleScript : MonoBehaviour {
 		
 	}
 	
-	public void SetDrawFeedback(bool hasDrawFeedback, char gekozenAs){
+	public void volgendeAs(){
+		if (locked == false){
+			asIndex = (asIndex + 1) % 3;
+			SetDrawFeedback(drawFeedback);	
+		}
+		locked = true;
+	}
+	
+	public void releaseLock(){
+		locked = false;	
+	}
+	
+	public void SetDrawFeedback(bool hasDrawFeedback){
 				
 		if (hasDrawFeedback){
+			char gekozenAs = assen[asIndex];		
 					
 			//Gekozen as transformeren naar globaal assenstelsel
 			if (gekozenAs == 'x'){
