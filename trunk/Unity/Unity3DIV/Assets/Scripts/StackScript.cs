@@ -5,7 +5,10 @@ using System;
 // when executing functions of this script -> assume view = topview
 // left-right axis of selectedObject points to the right
 public class StackScript : MonoBehaviour {
-	private bool isActive;	
+	public bool isActive;	
+	public bool gridModus;
+	public Color gridColor;
+	public float moveStep;
 	private GameObject selectedObject;
 	private ObjectScript scriptOfSelectedObject;		
 	private ArrayList lines;
@@ -16,6 +19,7 @@ public class StackScript : MonoBehaviour {
 	private float currLeftRightOnObject, currTopDownOnObject;
 	private Vector3 currPointInGridGlobalCoords, currPointInGridLocalCoords;
 	private bool topDownAxisInverted;
+	private float topDownLength, leftRightLength, height; // dimension of selectedObject
 	
 	// storing previous camera view
 	private Vector3 prevPosCamera;
@@ -43,9 +47,14 @@ public class StackScript : MonoBehaviour {
 				return;
 			}
 						
-			scriptOfSelectedObject.changeToTopview();
+			scriptOfSelectedObject.changeToTopview();			
 			topDownAxisInverted = topDownAxisIsInverted();
-			goToFirstAvailablePosition();		
+			calculateDimensions();
+			
+			if(gridModus)
+				goToFirstAvailablePosition();		
+			else
+				goToDefaultPosition();	
 		}
 	}
 	
@@ -63,6 +72,47 @@ public class StackScript : MonoBehaviour {
 				break;
 		}
 		return result;
+	}
+	
+	private void calculateDimensions(){
+		Vector3 scale = selectedObject.transform.localScale;
+		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
+		Bounds bounds = mesh.bounds;
+		Vector3 size = bounds.size;
+		
+		switch(scriptOfSelectedObject.localAxisTopDown[0]){			
+			case 'X':
+				topDownLength = size.x;//*scale.x;
+				break;
+			case 'Y':
+				topDownLength = size.y;//*scale.y;
+				break;
+			case 'Z':
+				topDownLength = size.z;//*scale.z;
+				break;
+		}		
+		switch(scriptOfSelectedObject.localAxisLeftRight[0]){			
+			case 'X':
+				leftRightLength = size.x;//*scale.x;
+				break;
+			case 'Y':
+				leftRightLength = size.y;//*scale.y;
+				break;
+			case 'Z':
+				leftRightLength = size.z;//*scale.z;
+				break;
+		}
+		switch(scriptOfSelectedObject.localUpAxis[0]){			
+			case 'X':
+				height = size.x;//*scale.x;
+				break;
+			case 'Y':
+				height = size.y;//*scale.y;
+				break;
+			case 'Z':
+				height = size.z;//*scale.z;
+				break;
+		}
 	}
 	
 	public void goToNextPossibleStackedObject(){
@@ -83,15 +133,83 @@ public class StackScript : MonoBehaviour {
 	}
 		
 	public void goToNextAvailablePositionLeft(){
+		bool placed = false;
+		int currCol = currColInGrid;
+		
+		do{
+			currCol--;
+			if(currCol < 0)
+				;
+			else if(scriptOfSelectedObject.isGridCellAvailable(currCol, currRowInGrid) == true)
+				placed = true;
+		
+		}while(!placed && currCol >= 0);
+		
+		if(placed){
+			currColInGrid = currCol;	
+			drawGrid();
+			setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+		}
 	}
 	
 	public void goToNextAvailablePositionRight(){
+		bool placed = false;
+		int currCol = currColInGrid;
+		
+		do{
+			currCol++;
+			if(currCol >= scriptOfSelectedObject.gridSizeLeftRight)
+				;
+			else if(scriptOfSelectedObject.isGridCellAvailable(currCol, currRowInGrid) == true)
+				placed = true;
+		
+		}while(!placed && currCol < scriptOfSelectedObject.gridSizeLeftRight);
+		
+		if(placed){
+			currColInGrid = currCol;	
+			drawGrid();
+			setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+		}
 	}
 	
 	public void goToNextAvailablePositionTop(){
+		bool placed = false;
+		int currRow = currRowInGrid;
+		
+		do{
+			currRow++;
+			if(currRow >= scriptOfSelectedObject.gridSizeTopBottom)
+				;
+			else if(scriptOfSelectedObject.isGridCellAvailable(currColInGrid, currRow) == true)
+				placed = true;
+		
+		}while(!placed && currRow < scriptOfSelectedObject.gridSizeTopBottom);
+		
+		if(placed){
+			currRowInGrid = currRow;	
+			drawGrid();
+			setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+		}
 	}
 	
 	public void goToNextAvailablePositionDown(){
+		bool placed = false;
+		int currRow = currRowInGrid;
+		
+		do{
+			currRow--;
+			if(currRow < 0)
+				;
+			else if(scriptOfSelectedObject.isGridCellAvailable(currColInGrid, currRow) == true)
+				placed = true;
+		
+		}while(!placed && currRow >= 0);
+		
+		if(placed){
+			currRowInGrid = currRow;	
+			drawGrid();
+			setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
+		}
 	}
 	
 	public void goToNextAvailablePosition(){
@@ -136,8 +254,41 @@ public class StackScript : MonoBehaviour {
 			return;
 			
 		bool found = false;						
-		for(int i = 0; i < scriptOfSelectedObject.gridSizeTopBottom && !found; i++){
-			for(int j = 0; j < scriptOfSelectedObject.gridSizeLeftRight && !found; j++){
+		for(int i = scriptOfSelectedObject.gridSizeTopBottom/2; i < scriptOfSelectedObject.gridSizeTopBottom && !found; i++){
+			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j < scriptOfSelectedObject.gridSizeLeftRight && !found; j++){
+				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
+					found = true;			
+					currRowInGrid = i;
+					currColInGrid = j;
+					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+				}
+				else
+					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+			}	
+			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j >=0 && !found; j--){
+				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
+					found = true;			
+					currRowInGrid = i;
+					currColInGrid = j;
+					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+				}
+				else
+					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+			}	
+		}
+		
+		for(int i = scriptOfSelectedObject.gridSizeTopBottom/2; i >= 0 && !found; i--){
+			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j < scriptOfSelectedObject.gridSizeLeftRight && !found; j++){
+				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
+					found = true;			
+					currRowInGrid = i;
+					currColInGrid = j;
+					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+				}
+				else
+					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+			}	
+			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j >=0 && !found; j--){
 				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
 					found = true;			
 					currRowInGrid = i;
@@ -156,17 +307,79 @@ public class StackScript : MonoBehaviour {
 		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
 	}	
 	
-	// stacking manipulation = finished
-	public void choosePosition(){
+	private void goToDefaultPosition(){
+		if(!isActive)
+			return;	
+		
+		currLeftRightOnObject = leftRightLength/2.0f;
+		currTopDownOnObject = topDownLength/2.0f;
+		
+		drawNoGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);		
+	}
+	
+	public void goToBottom(){
+		currTopDownOnObject -= moveStep;
+		if(currTopDownOnObject < 0.0f)
+			currTopDownOnObject = 0.0f;
+		
+		drawNoGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);		
+	}	
+	public void goToTop(){
+		currTopDownOnObject += moveStep;
+		if(currTopDownOnObject > topDownLength)
+			currTopDownOnObject = topDownLength;
+		
+		drawNoGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);		
+	}
+	public void goToLeft(){
+		currLeftRightOnObject -= moveStep;
+		if(currLeftRightOnObject < 0.0f)
+			currLeftRightOnObject = 0.0f;
+		
+		drawNoGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);			
+	}
+	public void goToRight(){
+		currLeftRightOnObject += moveStep;
+		if(currLeftRightOnObject > leftRightLength)
+			currLeftRightOnObject = leftRightLength;
+		
+		drawNoGrid();
+		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);		
+	}
+	
+	
+	// The object will be cloned and placed onto selectedObject
+	public void End(){
 		if(!isActive)
 			return;
+				
+		if(currentPossibleStackedObject){
+			Vector3 temp = currentPossibleStackedObject.transform.position;
+			temp.y = -50f;
+			currentPossibleStackedObject.transform.position = temp;
+			
+			Vector3 coords = currPointInGridGlobalCoords;		
+			ObjectScript oscript = (ObjectScript) currentPossibleStackedObject.GetComponent("ObjectScript");
+			string name_ = (string) (oscript.clone(coords,Quaternion.identity));
+			GameObject clone = GameObject.Find(name_);
+			((ObjectScript)  clone.GetComponent("ObjectScript")).setParentTransform(selectedObject.transform);			
+		}
+		
 		foreach( GameObject obj in lines){
 			Destroy(obj);
 		}
 		lines.Clear();
+		
+		Camera.main.transform.position = prevPosCamera;
+		Camera.main.transform.rotation = prevRotCamera;
 		isActive = false;
 	}
 	
+	// The new object will not be placed
 	public void Abort(){
 		if(!isActive)
 			return;
@@ -188,11 +401,8 @@ public class StackScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(isActive){			
-			;
-		}
+	
 	}
-
 	
 	private void setPossibleStackedObject(string name){
 		// this object will be cloned when chosen -> do NOT make it a child of the selected object
@@ -224,44 +434,6 @@ public class StackScript : MonoBehaviour {
 		Vector3 scale = selectedObject.transform.localScale;
 		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
 		Bounds bounds = mesh.bounds;
-		Vector3 size = bounds.size;
-		float topDownLength = 0;
-		float leftRightLength = 0;
-		float height = 0;
-		
-		switch(scriptOfSelectedObject.localAxisTopDown[0]){			
-			case 'X':
-				topDownLength = size.x;//*scale.x;
-				break;
-			case 'Y':
-				topDownLength = size.y;//*scale.y;
-				break;
-			case 'Z':
-				topDownLength = size.z;//*scale.z;
-				break;
-		}		
-		switch(scriptOfSelectedObject.localAxisLeftRight[0]){			
-			case 'X':
-				leftRightLength = size.x;//*scale.x;
-				break;
-			case 'Y':
-				leftRightLength = size.y;//*scale.y;
-				break;
-			case 'Z':
-				leftRightLength = size.z;//*scale.z;
-				break;
-		}
-		switch(scriptOfSelectedObject.localUpAxis[0]){			
-			case 'X':
-				height = size.x;//*scale.x;
-				break;
-			case 'Y':
-				height = size.y;//*scale.y;
-				break;
-			case 'Z':
-				height = size.z;//*scale.z;
-				break;
-		}
 		
 		/**
 		**	CALCULATE THE OBJECT POSITION IN THE GRID
@@ -378,14 +550,12 @@ public class StackScript : MonoBehaviour {
 			fromGlobal.y += 0.2f;
 			toGlobal.y += 0.2f;
 			
-			Color c1 = Color.red;
-			Color c2 = Color.red;
 			GameObject line = new GameObject();
 			LineRenderer rend = line.AddComponent<LineRenderer>();
 			rend.material = new Material(Shader.Find("Particles/Additive"));
 			rend.useWorldSpace = true;
 			rend.SetWidth(0.08f, 0.08f);
-			rend.SetColors(c1, c2);
+			rend.SetColors(gridColor, gridColor);
 			rend.SetVertexCount(2);
 			rend.SetPosition(0, fromGlobal);
 			rend.SetPosition(1, toGlobal);
@@ -450,14 +620,12 @@ public class StackScript : MonoBehaviour {
 			fromGlobal.y += 0.2f;
 			toGlobal.y += 0.2f;
 			
-			Color c1 = Color.green;
-			Color c2 = Color.green;
 			GameObject line = new GameObject();
 			LineRenderer rend = line.AddComponent<LineRenderer>();
 			rend.material = new Material(Shader.Find("Particles/Additive"));
 			rend.useWorldSpace = true;
 			rend.SetWidth(0.08f, 0.08f);
-			rend.SetColors(c1, c2);
+			rend.SetColors(gridColor,gridColor);
 			rend.SetVertexCount(2);
 			rend.SetPosition(0, fromGlobal);
 			rend.SetPosition(1, toGlobal);
@@ -468,4 +636,69 @@ public class StackScript : MonoBehaviour {
 			//Debug.Log("To: " + toGlobal.x + ", "  + toGlobal.y + ", "  + toGlobal.z);
 		}	
 	}
+
+	private void drawNoGrid(){
+		if(!isActive)
+			return;		
+		
+		Vector3 scale = selectedObject.transform.localScale;
+		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
+		Bounds bounds = mesh.bounds;
+		
+		/**
+		**	CALCULATE THE OBJECT POSITION IN THE GRID
+		**/
+		switch(scriptOfSelectedObject.localUpAxis[0]){				
+			case 'X':
+				currPointInGridLocalCoords.x = bounds.center.x + (float) height/2;
+				break;
+			case 'Y':
+				currPointInGridLocalCoords.y = bounds.center.y + (float) height/2;
+				break;
+			case 'Z':
+				currPointInGridLocalCoords.z = bounds.center.z + (float) height/2;
+				break;
+		}
+		switch(scriptOfSelectedObject.localAxisLeftRight[0]){				
+			case 'X':
+				currPointInGridLocalCoords.x = (float) (bounds.center.x  - leftRightLength/2 + currLeftRightOnObject);
+				break;
+			case 'Y':
+				currPointInGridLocalCoords.y = (float) (bounds.center.y  - leftRightLength/2 + currLeftRightOnObject);
+				break;
+			case 'Z':
+				currPointInGridLocalCoords.z = (float) (bounds.center.z  - leftRightLength/2 + currLeftRightOnObject);
+				break;
+		}
+		
+		if(!topDownAxisInverted){
+			Debug.Log("not inverted");
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){				
+				case 'X':
+					currPointInGridLocalCoords.x = (float) (bounds.center.x  - topDownLength/2 + currTopDownOnObject);
+					break;
+				case 'Y':
+					currPointInGridLocalCoords.y = (float) (bounds.center.y  - topDownLength/2 + currTopDownOnObject);
+					break;
+				case 'Z':
+					currPointInGridLocalCoords.z = (float) (bounds.center.z  - topDownLength/2 + currTopDownOnObject);
+					break;
+			}
+		}else{
+			Debug.Log("inverted");
+			switch(scriptOfSelectedObject.localAxisTopDown[0]){				
+				case 'X':
+					currPointInGridLocalCoords.x = (float) (bounds.center.x  + topDownLength/2 - currTopDownOnObject);
+					break;
+				case 'Y':
+					currPointInGridLocalCoords.y = (float) (bounds.center.y  + topDownLength/2 - currTopDownOnObject);
+					break;
+				case 'Z':
+					currPointInGridLocalCoords.z = (float) (bounds.center.z  + topDownLength/2 - currTopDownOnObject);
+					break;
+			}		
+		}
+		
+		currPointInGridGlobalCoords = selectedObject.transform.TransformPoint(currPointInGridLocalCoords);
+	}	
 }

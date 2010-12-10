@@ -135,7 +135,7 @@ public class ObjectScript : MonoBehaviour {
 		gameObject.active = false;
 	}
 	
-public void removeChildFromGridCell(int pcolInGrid, int prowInGrid){
+	public void removeChildFromGridCell(int pcolInGrid, int prowInGrid){
 		GameObject toBeRemoved = gameObject;
 		bool found = false;
 		
@@ -178,10 +178,12 @@ public void removeChildFromGridCell(int pcolInGrid, int prowInGrid){
 		transform.parent = parent_;
 	}
 	
-	public void clone(Vector3 pos, Quaternion rot){
+	public string clone(Vector3 pos, Quaternion rot){
 		GameObject clone = (GameObject) Instantiate(gameObject, pos, rot);
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
 		cloneScript.setOriginator(gameObject);
+		
+		return clone.name;
 	}
 	
 	private void setOriginator(GameObject orig){

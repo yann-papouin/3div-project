@@ -40,44 +40,10 @@ public class KeyBoardController : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {	
-		if (Input.GetAxis("Horizontal") < 0 )
-			moveCameraLeft();
-		else if (Input.GetAxis("Horizontal") > 0)
-			moveCameraRight();		
-		if (Input.GetAxis("Vertical") > 0)
-			zoomCameraOut();		
-		if (Input.GetKey ("left"))
-			moveCameraLeft();
-		if (Input.GetKey ("right"))
-			moveCameraRight();
-		if (Input.GetKey ("up"))
-			moveCameraForward();
-		if (Input.GetKey ("down"))
-			moveCameraBackward();
-		if (Input.GetKey ("g"))
-			rotateCameraLeft();
-		if (Input.GetKey ("h"))
-			rotateCameraRight();
-			
-		// stacking	
-		if (Input.GetKeyUp ("t")){
-			TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
-			script.testStack();
-		}
-		if (Input.GetKeyUp ("y")){
-			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
-			script.goToNextAvailablePosition();
-		}
-		if (Input.GetKeyUp ("u")){
-			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
-			script.goToNextPossibleStackedObject();
-		}
-		if (Input.GetKeyUp ("i")){
-			StackScript script = (StackScript) GameObject.Find("InputController").GetComponent("StackScript");
-			script.Abort();
-		}
-		
+	void Update () {		
+		updateNavigation();
+		updateStackingManipulation();
+				
 		if (Input.GetButton("Fire1")){
 			lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
 			if (lastGameObjectHit != rotateScript.clone){
@@ -119,6 +85,60 @@ public class KeyBoardController : MonoBehaviour {
 		//screenpointer.transform.position = mouseY;
 		//Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
 		//GUI.Label(cursloc, cursorImage);
+	}
+	
+	private void updateNavigation(){
+		if (Input.GetKey("left") && !stackScript.isActive)
+			moveCameraLeft();
+		if (Input.GetKey("right") && !stackScript.isActive)
+			moveCameraRight();
+		if (Input.GetKey("up") && !stackScript.isActive)
+			moveCameraForward();
+		if (Input.GetKey("down") && !stackScript.isActive)
+			moveCameraBackward();
+		if (Input.GetKey("g") && !stackScript.isActive)
+			rotateCameraLeft();
+		if (Input.GetKey("h") && !stackScript.isActive)
+			rotateCameraRight();
+	}
+	
+	private void updateStackingManipulation(){
+		if (Input.GetKeyUp ("t")){
+				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
+				script.testStack(); // place an object -> skip selection step
+		}	
+			
+		if(stackScript.isActive){
+			if(stackScript.gridModus){
+				if (Input.GetKeyUp("left"))
+					stackScript.goToNextAvailablePositionLeft();	
+				if (Input.GetKeyUp("right"))
+					stackScript.goToNextAvailablePositionRight();
+				if (Input.GetKeyUp("up"))
+					stackScript.goToNextAvailablePositionTop();
+				if (Input.GetKeyUp("down"))
+					stackScript.goToNextAvailablePositionDown();
+			}else{
+				if (Input.GetKey("left"))
+					stackScript.goToLeft();	
+				if (Input.GetKey("right"))
+					stackScript.goToRight();
+				if (Input.GetKey("up"))
+					stackScript.goToTop();
+				if (Input.GetKey("down"))
+					stackScript.goToBottom();
+			}
+			
+				
+			if (Input.GetKeyUp ("y") && stackScript.gridModus)
+				stackScript.goToNextAvailablePosition(); // scrolling  left-right, bottom-up
+			if (Input.GetKeyUp ("u"))
+				stackScript.goToNextPossibleStackedObject(); // scrolling between possible object
+			if (Input.GetKeyUp ("i"))
+				stackScript.Abort(); // abort this manipulation
+			if (Input.GetKeyUp ("o"))
+				stackScript.End(); // end this manipulation
+		}		
 	}
 	
 	//COPYPASTA
@@ -184,14 +204,5 @@ public class KeyBoardController : MonoBehaviour {
 		Debug.Log("Rotate camera right");
 		
 		playerCam.transform.Rotate(0,rotateStep,0);
-	}
-	
-	private void zoomCameraOut() //Jens heeft dit al gedaan in testscene. Code in comments
-	{
-		Debug.Log("Zoom camera uit/Swap camera");
-		/*
-			originalCam.camera.enabled = false;
-			camToSwitch.camera.enabled = true;
-		*/
 	}
 }

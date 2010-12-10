@@ -25,7 +25,7 @@ public class TestScript : MonoBehaviour {
 	}
 	
 	public void testStack(){
-		GameObject tafel = GameObject.Find("TestCube");
+		GameObject tafel = GameObject.Find("vloer kamer 1");
 		ObjectScript oscript = (ObjectScript)tafel.GetComponent("ObjectScript");
 		
 		GameObject ic = GameObject.Find("InputController");
