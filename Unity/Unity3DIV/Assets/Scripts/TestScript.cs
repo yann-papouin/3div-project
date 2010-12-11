@@ -1,3 +1,5 @@
+// Author: Sibrand Staessens
+
 using UnityEngine;
 using System.Collections;
 
@@ -21,15 +23,24 @@ public class TestScript : MonoBehaviour {
 		GameObject clone = GameObject.Find("trex_ori1");
 		GameObject tafel = GameObject.Find("tafel");
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
-		cloneScript.setParentTransform(Camera.main.transform);
+		//cloneScript.setParentTransform(Camera.main.transform);
 	}
 	
 	public void testStack(){
-		GameObject tafel = GameObject.Find("vloer kamer 1");
+		GameObject tafel = GameObject.Find("Tafel");
 		ObjectScript oscript = (ObjectScript)tafel.GetComponent("ObjectScript");
 		
 		GameObject ic = GameObject.Find("InputController");
 		StackScript sscript = (StackScript)ic.GetComponent("StackScript");
 		sscript.Begin(tafel);
+	}
+	
+	public void testParentMove(){
+		GameObject tafel = GameObject.Find("Tafel");
+		tafel.transform.Translate(Vector3.forward * 2, Space.World);
+	}
+	public void testParentRotate(){
+		GameObject tafel = GameObject.Find("Tafel");
+		tafel.transform.RotateAround(tafel.transform.position, Vector3.up, 5);
 	}
 }

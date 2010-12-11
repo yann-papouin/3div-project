@@ -1,3 +1,5 @@
+// Author: Sibrand Staessens
+
 using UnityEngine;
 using System.Collections;
 using System;
@@ -20,10 +22,6 @@ public class StackScript : MonoBehaviour {
 	private Vector3 currPointInGridGlobalCoords, currPointInGridLocalCoords;
 	private bool topDownAxisInverted;
 	private float topDownLength, leftRightLength, height; // dimension of selectedObject
-	
-	// storing previous camera view
-	private Vector3 prevPosCamera;
-	private Quaternion prevRotCamera;
 
 	// Use this for initialization
 	void Start () {
@@ -39,8 +37,6 @@ public class StackScript : MonoBehaviour {
 			selectedObject = carrier;
 			scriptOfSelectedObject = (ObjectScript) selectedObject.GetComponent("ObjectScript");	
 			currentIndexOfPossibleStackedObject = 0;
-			prevPosCamera = Camera.main.transform.position;
-			prevRotCamera = Camera.main.transform.rotation;
 			
 			if(!scriptOfSelectedObject || scriptOfSelectedObject.possibleChildren.Length == 0 || scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject].Length == 0){
 				isActive = false;
@@ -359,14 +355,15 @@ public class StackScript : MonoBehaviour {
 				
 		if(currentPossibleStackedObject){
 			Vector3 temp = currentPossibleStackedObject.transform.position;
+				
+			ObjectScript oscript = (ObjectScript) currentPossibleStackedObject.GetComponent("ObjectScript");
+			string name_ = (string) (oscript.clone(currentPossibleStackedObject.transform.position,Quaternion.identity));
+			GameObject clone = GameObject.Find(name_);	
+			clone.transform.position = temp;
+			scriptOfSelectedObject.addChild(clone);
+			
 			temp.y = -50f;
 			currentPossibleStackedObject.transform.position = temp;
-			
-			Vector3 coords = currPointInGridGlobalCoords;		
-			ObjectScript oscript = (ObjectScript) currentPossibleStackedObject.GetComponent("ObjectScript");
-			string name_ = (string) (oscript.clone(coords,Quaternion.identity));
-			GameObject clone = GameObject.Find(name_);
-			((ObjectScript)  clone.GetComponent("ObjectScript")).setParentTransform(selectedObject.transform);			
 		}
 		
 		foreach( GameObject obj in lines){
@@ -374,8 +371,7 @@ public class StackScript : MonoBehaviour {
 		}
 		lines.Clear();
 		
-		Camera.main.transform.position = prevPosCamera;
-		Camera.main.transform.rotation = prevRotCamera;
+		scriptOfSelectedObject.changeFromTopview();
 		isActive = false;
 	}
 	
@@ -384,7 +380,6 @@ public class StackScript : MonoBehaviour {
 		if(!isActive)
 			return;
 			
-		isActive = false;
 		if(currentPossibleStackedObject){
 			Vector3 temp = currentPossibleStackedObject.transform.position;
 			temp.y = -50f;
@@ -395,8 +390,8 @@ public class StackScript : MonoBehaviour {
 		}
 		lines.Clear();
 				
-		Camera.main.transform.position = prevPosCamera;
-		Camera.main.transform.rotation = prevRotCamera;
+		scriptOfSelectedObject.changeFromTopview();
+		isActive = false;
 	}
 	
 	// Update is called once per frame

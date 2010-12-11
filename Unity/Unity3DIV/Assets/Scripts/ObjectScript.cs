@@ -1,3 +1,5 @@
+// Author: Sibrand Staessens
+
 using UnityEngine;
 using System;
 using System.Collections;
@@ -36,6 +38,14 @@ public class ObjectScript : MonoBehaviour {
 	public int cloneID;	// original item -> ID == 0
 	private int lastUsedCloneID;
 	private GameObject original;
+	
+	public  Vector3 cameraPositionBeforeTopView; 
+	public  Quaternion cameraRotationBeforeTopView; 
+	private Quaternion startInterpolRot, endInterpolRot;
+	private Vector3 startInterpolPos, endInterpolPos;
+	public float interpolTime = 3.0f;
+	private float elapsedTime;
+	private bool interpolToTopView;
 
 	// Use this for initialization
 	void Start () {
@@ -50,57 +60,87 @@ public class ObjectScript : MonoBehaviour {
 		rowInGrid = -1;
 		children = new ArrayList();
 		parent = gameObject;
+		
+		elapsedTime = 2*interpolTime;
+		interpolToTopView = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+		if(elapsedTime <= interpolTime){
+			elapsedTime += Time.deltaTime;
+			
+			if(interpolToTopView){
+				Camera.main.transform.position = Vector3.Lerp(startInterpolPos, endInterpolPos, elapsedTime/interpolTime);
+				Camera.main.transform.rotation = Quaternion.Slerp(startInterpolRot, endInterpolRot, elapsedTime/interpolTime);
+			}
+			else{
+				Camera.main.transform.position = Vector3.Lerp(endInterpolPos, startInterpolPos, elapsedTime/interpolTime);
+				Camera.main.transform.rotation = Quaternion.Slerp(endInterpolRot, startInterpolRot, elapsedTime/interpolTime);
+			
+			}
+		}
 	}
 	
 	public void changeToTopview(){
+		interpolToTopView = true;
+		elapsedTime = 0.0f;
+		
+		startInterpolPos = Camera.main.transform.position;
+		cameraPositionBeforeTopView = Camera.main.transform.position;
+		startInterpolRot = Camera.main.transform.rotation;
+		cameraRotationBeforeTopView = Camera.main.transform.rotation;
+		
 		Vector3 pos = transform.position;
 		pos.y += topViewDistance;
-		Vector3 rot = transform.eulerAngles;	
-
-		Camera.main.transform.position = pos;	
-		Camera.main.transform.rotation = Quaternion.identity;	
+		endInterpolPos = pos;			
+			
+		Transform rot = Camera.main.transform;
+		rot.rotation = Quaternion.identity;	
 		float angle = 0.0f;
 		
 		Vector3 rotp = new Vector3(90,0,0);
-		Camera.main.transform.Rotate (rotp, Space.World);
+		rot.Rotate (rotp, Space.World);
 		
 		// make sure topDown en leftRight are correctly shown
 		switch(localAxisLeftRight[0]){
 			case 'X':
-				angle = Vector3.Angle(Camera.main.transform.right, transform.right);
+				angle = Vector3.Angle(rot.right, transform.right);
 				break;
 			case 'Y':
-				angle = Vector3.Angle(Camera.main.transform.right, transform.up);
+				angle = Vector3.Angle(rot.right, transform.up);
 				break;
 			case 'Z':
-				angle = Vector3.Angle(Camera.main.transform.right, transform.forward);
+				angle = Vector3.Angle(rot.right, transform.forward);
 				break;
 		}		
 				
 		rotp = new Vector3(0,angle,0);
-		Camera.main.transform.Rotate (rotp, Space.World);
+		rot.Rotate (rotp, Space.World);
 		
 		bool flip = false;
 		switch(localAxisLeftRight[0]){
 			case 'X':
-				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.right)) > 2.0f;
+				flip = Math.Abs(Vector3.Angle(rot.right, transform.right)) > 2.0f;
 				break;
 			case 'Y':
-				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.up)) > 2.0f;
+				flip = Math.Abs(Vector3.Angle(rot.right, transform.up)) > 2.0f;
 				break;
 			case 'Z':
-				flip = Math.Abs(Vector3.Angle(Camera.main.transform.right, transform.forward)) > 2.0f;
+				flip = Math.Abs(Vector3.Angle(rot.right, transform.forward)) > 2.0f;
 				break;
 		}
 		if(flip){
-			Camera.main.transform.Rotate (-2*rotp, Space.World);
+			rot.Rotate (-2*rotp, Space.World);
 		}
+		
+		endInterpolRot = rot.rotation;		
 	}	
+	
+	public void changeFromTopview(){
+		interpolToTopView = false;
+		elapsedTime = 0.0f;		
+	}
 	
 	public Dictionary<string, bool> getObjectPossibilities(){
 		Dictionary<string, bool> result = new Dictionary<string, bool>();
@@ -169,14 +209,6 @@ public class ObjectScript : MonoBehaviour {
 	public void addChild(GameObject child){
 		child.transform.parent = transform;
 	}	
-	
-	public void setParent(GameObject parent_){
-		transform.parent = parent_.transform;
-	}
-	
-	public void setParentTransform(Transform parent_){
-		transform.parent = parent_;
-	}
 	
 	public string clone(Vector3 pos, Quaternion rot){
 		GameObject clone = (GameObject) Instantiate(gameObject, pos, rot);
