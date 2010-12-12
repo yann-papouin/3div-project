@@ -14,8 +14,8 @@ public class ObjectScript : MonoBehaviour {
 	public bool canRotate;
 	public bool canBeStackedOn;
 	
-	public bool canBeDeleted;	
-	public bool canBeCloned;	
+	public bool canBeDeleted = false;	// only cloned objects can be deleted
+	public bool canBeCloned = true; // only original objects can be cloned	
 	public int topViewDistance;	 //distance to move the camera upwards
 	
 	// for positioning other objects onto this one
@@ -23,24 +23,28 @@ public class ObjectScript : MonoBehaviour {
 	public string localAxisLeftRight; // or: for dividing into columns
 	public string localAxisTopDown; // or: for dividing into rows
 	
-	public int gridSizeLeftRight;
-	public int gridSizeTopBottom;		
-	public ArrayList children; // GameObjects
 	// strings for the names of clonable objects that can be a child of this object
-	public string[] possibleChildren; 
+	public string[] possibleChildren; 	
+	private ArrayList children; // GameObjects	
+		
+	// for positioning this object onto another one with the help of a grid
+	public int colInGrid; // == index on localAxisLeftRight, this = child
+	public int rowInGrid; // == index on localAxisTopDown, this = child
+	public int gridSizeLeftRight; // this = parent
+	public int gridSizeTopBottom;// this = parent
 	
-	// for positioning this object onto another one
-	public int colInGrid; // == index on localAxisLeftRight
-	public int rowInGrid; // == index on localAxisTopDown
-	public GameObject parent; // if parent == gameObject -> no parent
+	// for positioning this object onto another one without the help of a grid
+	public float posLeftRight; // == index on localAxisLeftRight, this = child
+	public float posTopDown; // == index on localAxisTopDown, this = child
 	
 	// for cloning
 	public int cloneID;	// original item -> ID == 0
 	private int lastUsedCloneID;
-	private GameObject original;
+	private GameObject original = null;
 	
-	public  Vector3 cameraPositionBeforeTopView; 
-	public  Quaternion cameraRotationBeforeTopView; 
+	// for interpolating to topview
+	private  Vector3 cameraPositionBeforeTopView; 
+	private  Quaternion cameraRotationBeforeTopView; 
 	private Quaternion startInterpolRot, endInterpolRot;
 	private Vector3 startInterpolPos, endInterpolPos;
 	public float interpolTime = 3.0f;
@@ -48,18 +52,13 @@ public class ObjectScript : MonoBehaviour {
 	private bool interpolToTopView;
 
 	// Use this for initialization
-	void Start () {
-		canBeDeleted = false;	
-		canBeCloned = true;	
-		
+	void Start () {		
 		cloneID = 0;
 		lastUsedCloneID = 0;
-		original = gameObject;
 		
 		colInGrid = -1;
 		rowInGrid = -1;
 		children = new ArrayList();
-		parent = gameObject;
 		
 		elapsedTime = 2*interpolTime;
 		interpolToTopView = false;
@@ -77,7 +76,6 @@ public class ObjectScript : MonoBehaviour {
 			else{
 				Camera.main.transform.position = Vector3.Lerp(endInterpolPos, startInterpolPos, elapsedTime/interpolTime);
 				Camera.main.transform.rotation = Quaternion.Slerp(endInterpolRot, startInterpolRot, elapsedTime/interpolTime);
-			
 			}
 		}
 	}
@@ -167,51 +165,55 @@ public class ObjectScript : MonoBehaviour {
 		else return false;
 	}
 	
+	public void addChild(GameObject child, float leftright, float topdown){
+		if(child){
+			ObjectScript script = (ObjectScript) child.GetComponent("ObjectScript");	
+		
+			child.transform.parent = transform;
+			children.Add(child);
+			script.posLeftRight = leftright;
+			script.posTopDown = topdown;
+		}
+	}	
+
+	public void addChildInGrid(GameObject child, int col, int row){
+		if(child){
+			ObjectScript script = (ObjectScript) child.GetComponent("ObjectScript");	
+			
+			child.transform.parent = transform;
+			script.colInGrid = col;
+			script.rowInGrid = row;
+			children.Add(child);
+		}
+	}	
+	
+	public void detachChild(GameObject child){
+		if(child){
+			ObjectScript script = (ObjectScript) child.GetComponent("ObjectScript");	
+
+			children.Remove(child);
+			child.transform.parent = null;
+		}
+	}
+	
+	public GameObject getParent(){
+		if(transform.parent){
+			Transform t = transform.parent;
+			return t.gameObject;
+		} else 
+			return null;
+	}
+	
 	public void delete(){
 		foreach (GameObject child in children) {
 			ObjectScript script = (ObjectScript) child.GetComponent("ObjectScript");	
 			script.delete();
-		}	
+		}			
 		gameObject.active = false;
-	}
-	
-	public void removeChildFromGridCell(int pcolInGrid, int prowInGrid){
-		GameObject toBeRemoved = gameObject;
-		bool found = false;
-		
-		foreach (GameObject item in children) {
-			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-			if(script.colInGrid == pcolInGrid && script.rowInGrid == prowInGrid){
-				toBeRemoved = item;
-				found = true;
-			}
-		}
-		
-		if(found)
-			children.Remove(toBeRemoved);
-	}
-	
-	public void removeChildFromGrid(GameObject child){
-		children.Remove(child);
-	}
-	
-	public GameObject getChildFromGridCell(int pcolInGrid, int prowInGrid){
-		foreach (GameObject item in children) {
-			ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-			if(script.colInGrid == pcolInGrid && script.rowInGrid == prowInGrid){
-				return item;
-			}
-		}
-		
-		return new GameObject("dummy");
-	}
-	
-	public void addChild(GameObject child){
-		child.transform.parent = transform;
 	}	
 	
-	public string clone(Vector3 pos, Quaternion rot){
-		GameObject clone = (GameObject) Instantiate(gameObject, pos, rot);
+	public string clone(){
+		GameObject clone = (GameObject) Instantiate(gameObject, gameObject.transform.position, gameObject.transform.rotation);
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
 		cloneScript.setOriginator(gameObject);
 		
@@ -234,8 +236,8 @@ public class ObjectScript : MonoBehaviour {
 		children = new ArrayList();
 		possibleChildren = origScript.possibleChildren; 
 		
-		colInGrid = -1;
-		rowInGrid = -1; 
+		colInGrid = origScript.colInGrid;
+		rowInGrid = origScript.rowInGrid;
 		
 		canBeDeleted = true;
 		canBeCloned = false;

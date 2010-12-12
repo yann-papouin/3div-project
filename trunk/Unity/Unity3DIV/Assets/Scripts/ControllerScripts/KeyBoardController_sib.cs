@@ -18,6 +18,7 @@ public class KeyBoardController_sib : MonoBehaviour {
 	private RotateScript rotateScript;
 	private ScaleScript scaleScript;
 	private StackScript stackScript;
+	private MoveScript moveScript;
 	
 	//last object selected
 	private GameObject lastGameObjectHit;
@@ -28,7 +29,8 @@ public class KeyBoardController_sib : MonoBehaviour {
 		raycastscript = gameObject.GetComponent("RayCastScript") as RayCastScript;
 		rotateScript = gameObject.GetComponent("RotateScript") as RotateScript;
 		scaleScript = gameObject.GetComponent("ScaleScript") as ScaleScript;
-		stackScript = gameObject.GetComponent("StackScript") as StackScript;
+		stackScript = gameObject.GetComponent("StackScript") as StackScript;		
+		moveScript = gameObject.GetComponent("MoveScript") as MoveScript;
 		
 		//Turn off mouse pointer and set the cursorImage
 		screenpointer = (GUITexture)Instantiate(baseGuiTexture);
@@ -43,6 +45,7 @@ public class KeyBoardController_sib : MonoBehaviour {
 	void Update () {		
 		updateNavigation();
 		updateStackingManipulation();
+		updateMovingManipulation();
 				
 		if (Input.GetButton("Fire1")){
 			lastGameObjectHit = raycastscript.getTargetObjects(Input.mousePosition, playerCam.camera);
@@ -88,17 +91,17 @@ public class KeyBoardController_sib : MonoBehaviour {
 	}
 	
 	private void updateNavigation(){
-		if (Input.GetKey("left") && !stackScript.isActive)
+		if (Input.GetKey("left") && !stackScript.isActive && !moveScript.isActive)
 			moveCameraLeft();
-		if (Input.GetKey("right") && !stackScript.isActive)
+		if (Input.GetKey("right") && !stackScript.isActive && !moveScript.isActive)
 			moveCameraRight();
-		if (Input.GetKey("up") && !stackScript.isActive)
+		if (Input.GetKey("up") && !stackScript.isActive && !moveScript.isActive)
 			moveCameraForward();
-		if (Input.GetKey("down") && !stackScript.isActive)
+		if (Input.GetKey("down") && !stackScript.isActive && !moveScript.isActive)
 			moveCameraBackward();
-		if (Input.GetKey("g") && !stackScript.isActive)
+		if (Input.GetKey("g") && !stackScript.isActive && !moveScript.isActive)
 			rotateCameraLeft();
-		if (Input.GetKey("h") && !stackScript.isActive)
+		if (Input.GetKey("h") && !stackScript.isActive && !moveScript.isActive)
 			rotateCameraRight();
 	}
 	
@@ -106,7 +109,7 @@ public class KeyBoardController_sib : MonoBehaviour {
 		if (Input.GetKeyUp ("t")){
 				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
 				script.testStack(); // place an object -> skip selection step
-		}	
+		}
 		if (Input.GetKeyUp ("p")){
 				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
 				script.testParentMove();
@@ -114,6 +117,10 @@ public class KeyBoardController_sib : MonoBehaviour {
 		if (Input.GetKeyUp ("m")){
 				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
 				script.testParentRotate();
+		}	
+		if (Input.GetKeyUp ("l")){
+				ObjectScript script = (ObjectScript) GameObject.Find("Tafel").GetComponent("ObjectScript");
+				script.detachChild(GameObject.Find("schaal1"));
 		}	
 			
 		if(stackScript.isActive){
@@ -146,6 +153,41 @@ public class KeyBoardController_sib : MonoBehaviour {
 				stackScript.Abort(); // abort this manipulation
 			if (Input.GetKeyUp ("o"))
 				stackScript.End(); // end this manipulation
+		}		
+	}
+	
+	private void updateMovingManipulation(){
+		if (Input.GetKeyUp ("k")){
+			TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
+			script.testMove();
+		}
+			
+		if(moveScript.isActive){
+			if(moveScript.gridModus){
+				if (Input.GetKeyUp("left"))
+					moveScript.goToNextAvailablePositionLeft();	
+				if (Input.GetKeyUp("right"))
+					moveScript.goToNextAvailablePositionRight();
+				if (Input.GetKeyUp("up"))
+					moveScript.goToNextAvailablePositionTop();
+				if (Input.GetKeyUp("down"))
+					moveScript.goToNextAvailablePositionDown();
+			}else{
+				if (Input.GetKey("left"))
+					moveScript.goToLeft();	
+				if (Input.GetKey("right"))
+					moveScript.goToRight();
+				if (Input.GetKey("up"))
+					moveScript.goToTop();
+				if (Input.GetKey("down"))
+					moveScript.goToBottom();
+			}
+			
+				
+			if (Input.GetKeyUp ("y") && moveScript.gridModus)
+				moveScript.goToNextAvailablePosition(); // scrolling  left-right, bottom-up
+			if (Input.GetKeyUp ("o"))
+				moveScript.End(); // end this manipulation
 		}		
 	}
 	

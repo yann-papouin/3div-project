@@ -14,10 +14,7 @@ public class VerwijderScript : MonoBehaviour {
 	}
 	
 	public void DeleteObject(GameObject item){
-		ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");	
-		
-		Debug.Log(item.name);
-		
+		ObjectScript script = (ObjectScript) item.GetComponent("ObjectScript");			
 		script.delete();		
 	}
 }
