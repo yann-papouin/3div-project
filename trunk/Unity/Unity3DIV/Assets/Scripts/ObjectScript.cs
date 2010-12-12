@@ -55,9 +55,6 @@ public class ObjectScript : MonoBehaviour {
 	void Start () {		
 		cloneID = 0;
 		lastUsedCloneID = 0;
-		
-		colInGrid = -1;
-		rowInGrid = -1;
 		children = new ArrayList();
 		
 		elapsedTime = 2*interpolTime;
@@ -74,20 +71,22 @@ public class ObjectScript : MonoBehaviour {
 				Camera.main.transform.rotation = Quaternion.Slerp(startInterpolRot, endInterpolRot, elapsedTime/interpolTime);
 			}
 			else{
-				Camera.main.transform.position = Vector3.Lerp(endInterpolPos, startInterpolPos, elapsedTime/interpolTime);
-				Camera.main.transform.rotation = Quaternion.Slerp(endInterpolRot, startInterpolRot, elapsedTime/interpolTime);
+				Camera.main.transform.position = Vector3.Lerp(endInterpolPos, cameraPositionBeforeTopView, elapsedTime/interpolTime);
+				Camera.main.transform.rotation = Quaternion.Slerp(endInterpolRot, cameraRotationBeforeTopView, elapsedTime/interpolTime);
 			}
 		}
 	}
 	
-	public void changeToTopview(){
-		interpolToTopView = true;
-		elapsedTime = 0.0f;
+	public void changeToTopview(){		
+		if(elapsedTime > interpolTime){
+			cameraPositionBeforeTopView = Camera.main.transform.position;
+			cameraRotationBeforeTopView = Camera.main.transform.rotation;			
+			elapsedTime = 0.0f;
+		}
 		
+		interpolToTopView = true;
 		startInterpolPos = Camera.main.transform.position;
-		cameraPositionBeforeTopView = Camera.main.transform.position;
 		startInterpolRot = Camera.main.transform.rotation;
-		cameraRotationBeforeTopView = Camera.main.transform.rotation;
 		
 		Vector3 pos = transform.position;
 		pos.y += topViewDistance;
@@ -132,7 +131,7 @@ public class ObjectScript : MonoBehaviour {
 			rot.Rotate (-2*rotp, Space.World);
 		}
 		
-		endInterpolRot = rot.rotation;		
+		endInterpolRot = rot.rotation;			
 	}	
 	
 	public void changeFromTopview(){
