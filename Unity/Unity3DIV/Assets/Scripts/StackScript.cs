@@ -4,6 +4,11 @@ using UnityEngine;
 using System.Collections;
 using System;
 
+/*
+*	Script for creating a new object en placing it onto an existing object.
+*
+*/
+
 // when executing functions of this script -> assume view = topview
 // left-right axis of selectedObject points to the right
 public class StackScript : MonoBehaviour {
@@ -11,17 +16,16 @@ public class StackScript : MonoBehaviour {
 	public bool gridModus;
 	public Color gridColor;
 	public float moveStep;
-	private GameObject selectedObject;
-	private ObjectScript scriptOfSelectedObject;		
-	private ArrayList lines;
-	private int currentIndexOfPossibleStackedObject;
-	private GameObject currentPossibleStackedObject;
-	private ObjectScript scriptOfCurrentPossibleStackedObject;
-	private int currRowInGrid, currColInGrid;
-	private float currLeftRightOnObject, currTopDownOnObject;
-	private Vector3 currPointInGridGlobalCoords, currPointInGridLocalCoords;
-	private bool topDownAxisInverted;
-	private float topDownLength, leftRightLength, height; // dimension of selectedObject
+	protected GameObject selectedObject;
+	protected ObjectScript scriptOfSelectedObject;		
+	protected ArrayList lines;
+	protected int currentIndexOfPossibleStackedObject;
+	protected GameObject currentPossibleStackedObject;
+	protected int currRowInGrid, currColInGrid;
+	protected float currLeftRightOnObject, currTopDownOnObject;
+	protected Vector3 currPointInGridGlobalCoords, currPointInGridLocalCoords;
+	protected bool topDownAxisInverted;
+	protected float topDownLength, leftRightLength, height; // dimension of selectedObject
 
 	// Use this for initialization
 	void Start () {
@@ -54,7 +58,7 @@ public class StackScript : MonoBehaviour {
 		}
 	}
 	
-	private bool topDownAxisIsInverted(){
+	protected bool topDownAxisIsInverted(){
 		bool result = false;
 		switch(scriptOfSelectedObject.localAxisTopDown[0]){
 			case 'X':
@@ -70,7 +74,7 @@ public class StackScript : MonoBehaviour {
 		return result;
 	}
 	
-	private void calculateDimensions(){
+	protected void calculateDimensions(){
 		Vector3 scale = selectedObject.transform.localScale;
 		Mesh mesh = selectedObject.GetComponent<MeshFilter>().mesh;		
 		Bounds bounds = mesh.bounds;
@@ -78,35 +82,35 @@ public class StackScript : MonoBehaviour {
 		
 		switch(scriptOfSelectedObject.localAxisTopDown[0]){			
 			case 'X':
-				topDownLength = size.x;//*scale.x;
+				topDownLength = size.x;
 				break;
 			case 'Y':
-				topDownLength = size.y;//*scale.y;
+				topDownLength = size.y;
 				break;
 			case 'Z':
-				topDownLength = size.z;//*scale.z;
+				topDownLength = size.z;
 				break;
 		}		
 		switch(scriptOfSelectedObject.localAxisLeftRight[0]){			
 			case 'X':
-				leftRightLength = size.x;//*scale.x;
+				leftRightLength = size.x;
 				break;
 			case 'Y':
-				leftRightLength = size.y;//*scale.y;
+				leftRightLength = size.y;
 				break;
 			case 'Z':
-				leftRightLength = size.z;//*scale.z;
+				leftRightLength = size.z;
 				break;
 		}
 		switch(scriptOfSelectedObject.localUpAxis[0]){			
 			case 'X':
-				height = size.x;//*scale.x;
+				height = size.x;
 				break;
 			case 'Y':
-				height = size.y;//*scale.y;
+				height = size.y;
 				break;
 			case 'Z':
-				height = size.z;//*scale.z;
+				height = size.z;
 				break;
 		}
 	}
@@ -230,10 +234,9 @@ public class StackScript : MonoBehaviour {
 					found = true;
 					currRowInGrid = i;
 					currColInGrid = j;
-					Debug.Log("found posL: " + currColInGrid + ", posS: " + currRowInGrid);	
 				}
 				else
-					Debug.Log("not found posL: " + currColInGrid + ", posS: " + currRowInGrid);
+					;
 			}
 		}	
 		
@@ -245,7 +248,7 @@ public class StackScript : MonoBehaviour {
 		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
 	}	
 	
-	private void goToFirstAvailablePosition(){
+	protected void goToFirstAvailablePosition(){
 		if(!isActive)
 			return;
 			
@@ -255,21 +258,19 @@ public class StackScript : MonoBehaviour {
 				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
 					found = true;			
 					currRowInGrid = i;
-					currColInGrid = j;
-					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+					currColInGrid = j;	
 				}
 				else
-					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+					;
 			}	
 			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j >=0 && !found; j--){
 				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
 					found = true;			
 					currRowInGrid = i;
-					currColInGrid = j;
-					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+					currColInGrid = j;	
 				}
 				else
-					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+					;
 			}	
 		}
 		
@@ -279,20 +280,18 @@ public class StackScript : MonoBehaviour {
 					found = true;			
 					currRowInGrid = i;
 					currColInGrid = j;
-					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
 				}
 				else
-					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+					;
 			}	
 			for(int j = scriptOfSelectedObject.gridSizeLeftRight/2; j >=0 && !found; j--){
 				if(scriptOfSelectedObject.isGridCellAvailable(j, i) == true){
 					found = true;			
 					currRowInGrid = i;
-					currColInGrid = j;
-					Debug.Log("found col: " + currColInGrid + ", row: " + currRowInGrid);	
+					currColInGrid = j;	
 				}
 				else
-					Debug.Log("not found col: " + currColInGrid + ", row: " + currRowInGrid);
+					;
 			}	
 		}
 		
@@ -303,7 +302,7 @@ public class StackScript : MonoBehaviour {
 		setPossibleStackedObject(scriptOfSelectedObject.possibleChildren[currentIndexOfPossibleStackedObject]);
 	}	
 	
-	private void goToDefaultPosition(){
+	protected void goToDefaultPosition(){
 		if(!isActive)
 			return;	
 		
@@ -353,14 +352,21 @@ public class StackScript : MonoBehaviour {
 		if(!isActive)
 			return;
 				
+		GameObject clone = null;
 		if(currentPossibleStackedObject){
 			Vector3 temp = currentPossibleStackedObject.transform.position;
+			Quaternion temp2 = currentPossibleStackedObject.transform.rotation;
 				
 			ObjectScript oscript = (ObjectScript) currentPossibleStackedObject.GetComponent("ObjectScript");
-			string name_ = (string) (oscript.clone(currentPossibleStackedObject.transform.position,Quaternion.identity));
-			GameObject clone = GameObject.Find(name_);	
+			string name_ = (string) (oscript.clone());
+			clone = GameObject.Find(name_);	
 			clone.transform.position = temp;
-			scriptOfSelectedObject.addChild(clone);
+			clone.transform.rotation = temp2;
+			
+			if(gridModus)
+				scriptOfSelectedObject.addChildInGrid(clone, currColInGrid, currRowInGrid);
+			else
+				scriptOfSelectedObject.addChild(clone, currLeftRightOnObject, currTopDownOnObject);
 			
 			temp.y = -50f;
 			currentPossibleStackedObject.transform.position = temp;
@@ -399,12 +405,11 @@ public class StackScript : MonoBehaviour {
 	
 	}
 	
-	private void setPossibleStackedObject(string name){
+	protected void setPossibleStackedObject(string name){
 		// this object will be cloned when chosen -> do NOT make it a child of the selected object
 	
 		currentPossibleStackedObject = GameObject.Find(name);
-		scriptOfCurrentPossibleStackedObject = (ObjectScript) currentPossibleStackedObject.GetComponent("ObjectScript");	
-		
+
 		Vector3 pos = currentPossibleStackedObject.transform.position;
 		pos = currPointInGridGlobalCoords;
 		pos.y += currentPossibleStackedObject.renderer.bounds.extents.y;
@@ -412,7 +417,7 @@ public class StackScript : MonoBehaviour {
 		currentPossibleStackedObject.transform.position = pos;
 	}
 	
-	private void drawGrid(){	
+	protected void drawGrid(){	
 		if(!isActive)
 			return;		
 		
@@ -555,9 +560,6 @@ public class StackScript : MonoBehaviour {
 			rend.SetPosition(0, fromGlobal);
 			rend.SetPosition(1, toGlobal);
 			lines.Add(line);			
-			
-			//Debug.Log("From: " + fromGlobal.x + ", "  + fromGlobal.y + ", "  + fromGlobal.z);
-			//Debug.Log("To: " + toGlobal.x + ", "  + toGlobal.y + ", "  + toGlobal.z);
 		}	
 
 		/**
@@ -625,14 +627,10 @@ public class StackScript : MonoBehaviour {
 			rend.SetPosition(0, fromGlobal);
 			rend.SetPosition(1, toGlobal);
 			lines.Add(line);
-			
-			
-			//Debug.Log("From: " + fromGlobal.x + ", "  + fromGlobal.y + ", "  + fromGlobal.z);
-			//Debug.Log("To: " + toGlobal.x + ", "  + toGlobal.y + ", "  + toGlobal.z);
 		}	
 	}
 
-	private void drawNoGrid(){
+	protected void drawNoGrid(){
 		if(!isActive)
 			return;		
 		

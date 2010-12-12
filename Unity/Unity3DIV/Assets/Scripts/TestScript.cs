@@ -18,12 +18,11 @@ public class TestScript : MonoBehaviour {
 	public void test(){
 		GameObject trex = GameObject.Find("trex_ori");
 		ObjectScript script = (ObjectScript)trex.GetComponent("ObjectScript");
-		script.clone(new Vector3((float)-1.5, (float)2.0, (float)3.7),Quaternion.identity);
+		script.clone();
 
 		GameObject clone = GameObject.Find("trex_ori1");
 		GameObject tafel = GameObject.Find("tafel");
 		ObjectScript cloneScript = (ObjectScript) clone.GetComponent("ObjectScript");
-		//cloneScript.setParentTransform(Camera.main.transform);
 	}
 	
 	public void testStack(){
@@ -42,5 +41,11 @@ public class TestScript : MonoBehaviour {
 	public void testParentRotate(){
 		GameObject tafel = GameObject.Find("Tafel");
 		tafel.transform.RotateAround(tafel.transform.position, Vector3.up, 5);
+	}
+	
+	public void testMove(){
+		GameObject tafel = GameObject.Find("schaal1");
+		MoveScript script = (MoveScript) gameObject.GetComponent("MoveScript");
+		script.Begin(tafel);
 	}
 }
