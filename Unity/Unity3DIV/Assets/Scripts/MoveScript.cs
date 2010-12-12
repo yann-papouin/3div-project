@@ -40,6 +40,13 @@ public class MoveScript : MonoBehaviour {
 			isActive = true;
 			selectedObject = moveable;
 			scriptOfSelectedObject = (ObjectScript) moveable.GetComponent("ObjectScript");	
+			if(gridModus){
+				currRowInGrid = scriptOfSelectedObject.rowInGrid;
+				currColInGrid = scriptOfSelectedObject.colInGrid;
+			}else{
+				currLeftRightOnObject = scriptOfSelectedObject.posLeftRight;
+				currTopDownOnObject = scriptOfSelectedObject.posTopDown;
+			}
 			
 			if(scriptOfSelectedObject == null){
 				isActive = false;
@@ -59,12 +66,12 @@ public class MoveScript : MonoBehaviour {
 			calculateDimensions();
 			
 			if(gridModus){
-				currRowInGrid = scriptOfSelectedObject.rowInGrid;
-				currColInGrid = scriptOfSelectedObject.colInGrid;
+				drawGrid();
 			}else{
-				currLeftRightOnObject = scriptOfSelectedObject.posLeftRight;
-				currTopDownOnObject = scriptOfSelectedObject.posTopDown;
-			}
+				drawNoGrid();
+			}			
+			
+			move();
 		}
 	}
 	
@@ -270,6 +277,55 @@ public class MoveScript : MonoBehaviour {
 		move();		
 	}
 	
+	public void changeStackParent(GameObject newParent){
+		isActive = true;			
+		ObjectScript npScript = (ObjectScript) newParent.GetComponent("ObjectScript");	
+		if(!npScript)
+			return;
+		if(npScript.canBeStackedOn == false)
+			return;
+	
+		scriptOfParentObject.detachChild(selectedObject);
+		parentObject = newParent;						
+		scriptOfParentObject = 	(ObjectScript) parentObject.GetComponent("ObjectScript");	
+		
+		scriptOfParentObject.changeToTopview();			
+		topDownAxisInverted = topDownAxisIsInverted();
+		calculateDimensions();
+		
+		if(gridModus){
+			selectedObject.transform.parent = parentObject.transform;
+			selectedObject.transform.rotation = parentObject.transform.rotation;
+			goToDefaultPositionGrid();				
+			scriptOfParentObject.addChildInGrid(selectedObject, currColInGrid, currRowInGrid);
+		}			
+		else{
+			goToDefaultPosition();	
+			scriptOfSelectedObject.addChild(selectedObject, currLeftRightOnObject, currTopDownOnObject);
+		}
+	}
+	
+	protected void goToDefaultPositionGrid(){
+		if(!isActive)
+			return;
+								
+		currRowInGrid = scriptOfParentObject.gridSizeTopBottom/2; 
+		currColInGrid = scriptOfParentObject.gridSizeLeftRight/2;
+					
+		drawGrid();
+		move();
+	}	
+	
+	protected void goToDefaultPosition(){
+		if(!isActive)
+			return;	
+		
+		currLeftRightOnObject = leftRightLength/2.0f;
+		currTopDownOnObject = topDownLength/2.0f;
+		
+		drawNoGrid();
+		move();
+	}
 	
 	// The object will be cloned and placed onto selectedObject
 	public void End(){
@@ -294,8 +350,8 @@ public class MoveScript : MonoBehaviour {
 	
 	protected void move(){
 		if(gridModus){
-			scriptOfSelectedObject.colInGrid = currRowInGrid;
-			scriptOfSelectedObject.rowInGrid = currColInGrid;
+			scriptOfSelectedObject.colInGrid = currColInGrid;
+			scriptOfSelectedObject.rowInGrid = currRowInGrid;
 			
 			Vector3 pos = scriptOfSelectedObject.transform.position;
 			pos = currPointInGridGlobalCoords;
@@ -458,11 +514,11 @@ public class MoveScript : MonoBehaviour {
 		/**
 		**	DRAW THE SMALL GRID LINES
 		**/
-		for(int col = 0; col < scriptOfSelectedObject.gridSizeLeftRight; ++col)
+		for(int col = 0; col < scriptOfParentObject.gridSizeLeftRight; ++col)
 		{
 			Vector3 from = new Vector3(0,0,0);
 			Vector3 to = new Vector3(0,0,0);
-			switch(scriptOfSelectedObject.localUpAxis[0]){				
+			switch(scriptOfParentObject.localUpAxis[0]){				
 				case 'X':
 					from.x = bounds.center.x  + (float) height/2;
 					to.x = bounds.center.x  + (float)  height/2;
@@ -476,21 +532,21 @@ public class MoveScript : MonoBehaviour {
 					to.z = bounds.center.z  + (float) height/2;
 					break;
 			}
-			switch(scriptOfSelectedObject.localAxisLeftRight[0]){
+			switch(scriptOfParentObject.localAxisLeftRight[0]){
 				case 'X':
-					from.x = (float) (bounds.center.x  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
-					to.x = (float) (bounds.center. x + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					from.x = (float) (bounds.center.x  + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
+					to.x = (float) (bounds.center. x + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
 					break;
 				case 'Y':
-					from.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
-					to.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					from.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
+					to.y = (float) (bounds.center.y  + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
 					break;
 				case 'Z':
-					from.z = (float) (bounds.center. z + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
-					to.z = (float) (bounds.center.z  + -leftRightLength/2 + leftRightLength/(2*scriptOfSelectedObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfSelectedObject.gridSizeLeftRight);
+					from.z = (float) (bounds.center. z + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
+					to.z = (float) (bounds.center.z  + -leftRightLength/2 + leftRightLength/(2*scriptOfParentObject.gridSizeLeftRight)) + col*(leftRightLength/scriptOfParentObject.gridSizeLeftRight);
 					break;
 			}
-			switch(scriptOfSelectedObject.localAxisTopDown[0]){
+			switch(scriptOfParentObject.localAxisTopDown[0]){
 				case 'X':
 					from.x = bounds.center.x  + (float) -topDownLength/2;
 					to.x = bounds.center.x  + (float) topDownLength/2;
@@ -505,8 +561,8 @@ public class MoveScript : MonoBehaviour {
 					break;
 			}
 		
-			Vector3 fromGlobal = selectedObject.transform.TransformPoint(from);
-			Vector3 toGlobal = selectedObject.transform.TransformPoint(to);
+			Vector3 fromGlobal = scriptOfParentObject.transform.TransformPoint(from);
+			Vector3 toGlobal = scriptOfParentObject.transform.TransformPoint(to);
 			fromGlobal.y += 0.2f;
 			toGlobal.y += 0.2f;
 			

@@ -160,6 +160,10 @@ public class KeyBoardController_sib : MonoBehaviour {
 		if (Input.GetKeyUp ("k")){
 			TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
 			script.testMove();
+		}		
+		if (Input.GetKeyUp ("j")){
+				TestScript script = (TestScript) GameObject.Find("InputController").GetComponent("TestScript");
+				script.testChangeParent(); 
 		}
 			
 		if(moveScript.isActive){

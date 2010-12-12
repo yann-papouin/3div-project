@@ -48,4 +48,11 @@ public class TestScript : MonoBehaviour {
 		MoveScript script = (MoveScript) gameObject.GetComponent("MoveScript");
 		script.Begin(tafel);
 	}
+	
+	public void testChangeParent(){
+		GameObject tafel = GameObject.Find("schaal1");
+		MoveScript script = (MoveScript) gameObject.GetComponent("MoveScript");
+		script.changeStackParent(GameObject.Find("TestCube"));
+		
+	}
 }
