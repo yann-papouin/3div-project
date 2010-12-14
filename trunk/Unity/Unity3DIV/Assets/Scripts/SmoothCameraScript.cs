@@ -21,9 +21,75 @@ public class SmoothCameraScript : MonoBehaviour {
 	private bool interpolToTopView;
 	private ObjectScript objectToViewScript;
 	
+	private ArrayList vasteCameraLokaties;
+	private ArrayList vasteCameraLookAts;
+	private bool wachtOpKeyUp = false;
+	
+	public Vector3 eigenLokatie = new Vector3(0,0,0);
+	public Quaternion eigenLookAt = Quaternion.identity;
+	
+	public Vector3 uitZoomLocatie = new Vector3(11, 60, 10);
+	
+	private int index = -1;
+	
 	void Start () {
 		elapsedTime = 2*interpolTime;
 		interpolToTopView = false;
+		
+		vasteCameraLokaties = new ArrayList();
+		vasteCameraLookAts = new ArrayList();
+		
+		//Kamer 1 hoeken
+		vasteCameraLokaties.Add(new Vector3(14, 7, 10));
+		vasteCameraLookAts.Add(new Vector3(-10, 7, -4));
+		
+		vasteCameraLokaties.Add(new Vector3(13, 7, -10));
+		vasteCameraLookAts.Add(new Vector3(-10, 7, 9));
+		
+		vasteCameraLokaties.Add(new Vector3(-13, 7, -10));
+		vasteCameraLookAts.Add(new Vector3(14, 7, 10));
+				
+		vasteCameraLokaties.Add(new Vector3(-13, 7, 10));
+		vasteCameraLookAts.Add(new Vector3(13, 7, -10));
+		
+//		//Kamer 1 midden
+//		vasteCameraLokaties.Add(new Vector3(0, 7, 0));
+//		vasteCameraLookAts.Add(new Vector3(-10, 7, -4));
+//
+//		vasteCameraLokaties.Add(new Vector3(0, 7, 0));
+//		vasteCameraLookAts.Add(new Vector3(-10, 7, 9));
+//		
+//		vasteCameraLokaties.Add(new Vector3(0, 7, 0));
+//		vasteCameraLookAts.Add(new Vector3(14, 7, 10));
+//
+//		vasteCameraLokaties.Add(new Vector3(0, 7, 0));
+//		vasteCameraLookAts.Add(new Vector3(13, 7, -10));
+		
+		//Kamer 2 hoeken
+		vasteCameraLokaties.Add(new Vector3(-13, 7, 14));
+		vasteCameraLookAts.Add(new Vector3(32, 7, 32));
+		
+		vasteCameraLokaties.Add(new Vector3(-13, 7, 32));
+		vasteCameraLookAts.Add(new Vector3(32, 7, 14));
+		
+		vasteCameraLokaties.Add(new Vector3(32, 7, 32));
+		vasteCameraLookAts.Add(new Vector3(-13, 7, 14));
+				
+		vasteCameraLokaties.Add(new Vector3(32, 7, 14));
+		vasteCameraLookAts.Add(new Vector3(-13, 7, 32));
+				
+		//Kamer 3 hoeken
+		vasteCameraLokaties.Add(new Vector3(32, 7, 11));
+		vasteCameraLookAts.Add(new Vector3(18, 7, -10));
+				
+		vasteCameraLokaties.Add(new Vector3(32, 7, -10));
+		vasteCameraLookAts.Add(new Vector3(18, 7, 10));
+		
+		vasteCameraLokaties.Add(new Vector3(18, 7, -10));
+		vasteCameraLookAts.Add(new Vector3(32, 7, 11));
+		
+		vasteCameraLokaties.Add(new Vector3(18, 7, 10));
+		vasteCameraLookAts.Add(new Vector3(32, 7, -10));	
 	}
 	
 	void Update () {
@@ -103,4 +169,70 @@ public class SmoothCameraScript : MonoBehaviour {
 		interpolToTopView = false;
 		elapsedTime = 0.0f;		
 	}
+	
+	public void getNextCameraLokatie(){
+		startInterpolPos = Camera.main.transform.position;
+		startInterpolRot = Camera.main.transform.rotation;
+				
+		index = (index+1) % (vasteCameraLokaties.Count);
+		
+		Transform t = Camera.main.transform;
+		t.position = (Vector3)vasteCameraLokaties[index];
+		t.LookAt((Vector3)vasteCameraLookAts[index]);
+		
+		endInterpolRot = t.rotation;
+
+		endInterpolPos = (Vector3)vasteCameraLokaties[index];
+		elapsedTime = 0.0f;	
+		
+	}
+	
+
+	public void getVorigCameraLokatie(){
+		startInterpolPos = Camera.main.transform.position;
+		startInterpolRot = Camera.main.transform.rotation;
+
+			index = index -1;
+			if (index < 0){
+				index = vasteCameraLokaties.Count - 1;
+			}
+			
+		Transform t = Camera.main.transform;
+		t.position = (Vector3)vasteCameraLokaties[index];
+		t.LookAt((Vector3)vasteCameraLookAts[index]);
+		
+		endInterpolRot = t.rotation;
+
+		endInterpolPos = (Vector3)vasteCameraLokaties[index];
+		elapsedTime = 0.0f;	
+		
+	}
+	
+	public void GaNaarVorigePositie(){
+		startInterpolPos = Camera.main.transform.position;
+		startInterpolRot = Camera.main.transform.rotation;
+
+		endInterpolPos = eigenLokatie;
+		endInterpolRot = eigenLookAt;
+		elapsedTime = 0.0f;	
+	}
+	
+	public void GaNaarTopView(){
+		startInterpolPos = Camera.main.transform.position;
+		startInterpolRot = Camera.main.transform.rotation;
+		
+		Transform rot = Camera.main.transform;
+		rot.rotation = Quaternion.identity;	
+		float angle = 0.0f;
+		
+		Vector3 rotp = new Vector3(90,0,0);
+		rot.Rotate (rotp, Space.World);
+
+		endInterpolRot = rot.rotation;		
+		endInterpolPos = uitZoomLocatie;
+
+		
+		elapsedTime = 0.0f;	
+	}
+	
 }

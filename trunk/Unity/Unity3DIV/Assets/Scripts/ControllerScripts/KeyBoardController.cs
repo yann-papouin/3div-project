@@ -18,7 +18,9 @@ public class KeyBoardController : MonoBehaviour {
 	private RotateScript rotateScript;
 	private ScaleScript scaleScript;
 	private StackScript stackScript;
-	private CameraViewScript cameraScript;
+	private MoveScript moveScript;
+	private SmoothCameraScript smoothCameraScript;
+	
 	
 	//last object selected
 	private GameObject lastGameObjectHit;
@@ -30,7 +32,9 @@ public class KeyBoardController : MonoBehaviour {
 		rotateScript = gameObject.GetComponent("RotateScript") as RotateScript;
 		scaleScript = gameObject.GetComponent("ScaleScript") as ScaleScript;
 		stackScript = gameObject.GetComponent("StackScript") as StackScript;
-		cameraScript = gameObject.GetComponent("CameraViewScript") as CameraViewScript;
+		moveScript = gameObject.GetComponent("MoveScript") as MoveScript;
+		smoothCameraScript = gameObject.GetComponent("SmoothCameraScript") as SmoothCameraScript;
+
 
 		
 		//Turn off mouse pointer and set the cursorImage
@@ -75,37 +79,21 @@ public class KeyBoardController : MonoBehaviour {
 			scaleScript.releaseLock();
 			
 		//camera
-		if (Input.GetKey(";")){
-//			playerCam.transform.position = cameraScript.getNextCameraLokatie();
-//			playerCam.transform.LookAt(cameraScript.getNextCameraLookAt());
-			 Vector3 velocity = Vector3.zero;
-			playerCam.transform.position = Vector3.SmoothDamp(playerCam.transform.position,  cameraScript.getNextCameraLokatie(), ref velocity, 0.05f);
-			playerCam.transform.LookAt(cameraScript.getNextCameraLookAt());
-		}
 		if (Input.GetKeyUp (";")){
-			cameraScript.releaseLock();
+			smoothCameraScript.getNextCameraLokatie();
 		}
-		if (Input.GetKey("'")){
-//			playerCam.transform.position = cameraScript.getVorigCameraLokatie();
-//			playerCam.transform.LookAt(cameraScript.getVorigCameraLookAt());
-			 Vector3 velocity = Vector3.zero;
-			playerCam.transform.position = Vector3.SmoothDamp(playerCam.transform.position,  cameraScript.getVorigCameraLokatie(), ref velocity, 0.05f);
-			playerCam.transform.LookAt(cameraScript.getVorigCameraLookAt());
-		}
+
 		if (Input.GetKeyUp ("'")){
-			cameraScript.releaseLock();
+			smoothCameraScript.getVorigCameraLokatie();
 		}
 		
 		if (Input.GetKey("/")){
-			Vector3 velocity = Vector3.zero;
-			playerCam.transform.position = Vector3.SmoothDamp(playerCam.transform.position,  cameraScript.eigenLokatie, ref velocity, 0.05f);
-			playerCam.transform.rotation = cameraScript.eigenLookAt;
+			smoothCameraScript.GaNaarVorigePositie();			
 		}
 		
 		//camera uitzoomen naar top view
 		if (Input.GetKey(".")){
-			playerCam.transform.position =  cameraScript.uitZoomLocatie;
-			playerCam.transform.LookAt(cameraScript.uitZoomLookAt);
+			smoothCameraScript.GaNaarTopView();	
 		}
 		
 			
@@ -118,7 +106,7 @@ public class KeyBoardController : MonoBehaviour {
 		screenpointer.transform.position = new Vector3(mouseX, mouseY, 0);
 		//screenpointer.transform.position = mouseY;
 		Rect cursloc = new Rect(mousePos.x, Screen.height - mousePos.y, cursorImage.width, cursorImage.height);
-		GUI.Label(cursloc, cursorImage);
+		//GUI.Label(cursloc, cursorImage);
 	}
 	
 	private void updateNavigation(){
@@ -184,7 +172,7 @@ public class KeyBoardController : MonoBehaviour {
 		cameraRelative.y = 0;
 		playerCam.transform.localPosition += cameraRelative;
 		
-		cameraScript.eigenLokatie = playerCam.transform.position;
+		smoothCameraScript.eigenLokatie = playerCam.transform.position;
 		
 	}
 	
@@ -196,7 +184,7 @@ public class KeyBoardController : MonoBehaviour {
 		cameraRelative.y = 0;		
 		playerCam.transform.localPosition += cameraRelative;
 		
-		cameraScript.eigenLokatie = playerCam.transform.position;
+		smoothCameraScript.eigenLokatie = playerCam.transform.position;
 
 	}
 	
@@ -208,7 +196,7 @@ public class KeyBoardController : MonoBehaviour {
 		cameraRelative.y = 0;
 		playerCam.transform.localPosition += cameraRelative;
 		
-		cameraScript.eigenLokatie = playerCam.transform.position;
+		smoothCameraScript.eigenLokatie = playerCam.transform.position;
 
 	}
 	
@@ -220,7 +208,7 @@ public class KeyBoardController : MonoBehaviour {
 		cameraRelative.y = 0;		
 		playerCam.transform.localPosition += cameraRelative;
 		
-		cameraScript.eigenLokatie = playerCam.transform.position;
+		smoothCameraScript.eigenLokatie = playerCam.transform.position;
 
 	}
 	
@@ -230,7 +218,7 @@ public class KeyBoardController : MonoBehaviour {
 		
 		playerCam.transform.Rotate(0,-rotateStep,0);
 		
-		cameraScript.eigenLookAt = playerCam.transform.rotation;
+		smoothCameraScript.eigenLookAt = playerCam.transform.rotation;
 	}
 	
 	private void rotateCameraUp()
@@ -239,7 +227,7 @@ public class KeyBoardController : MonoBehaviour {
 		
 		playerCam.transform.Rotate(rotateStep,0,0);
 		
-		cameraScript.eigenLookAt = playerCam.transform.rotation;
+		smoothCameraScript.eigenLookAt = playerCam.transform.rotation;
 	}
 	
 		private void rotateCameraDown()
@@ -248,7 +236,7 @@ public class KeyBoardController : MonoBehaviour {
 		
 		playerCam.transform.Rotate(-rotateStep,0,0);
 		
-		cameraScript.eigenLookAt = playerCam.transform.rotation;
+		smoothCameraScript.eigenLookAt = playerCam.transform.rotation;
 	}
 	
 	private void rotateCameraRight()
@@ -257,6 +245,6 @@ public class KeyBoardController : MonoBehaviour {
 		
 		playerCam.transform.Rotate(0,rotateStep,0);
 		
-		cameraScript.eigenLookAt = playerCam.transform.rotation;
+		smoothCameraScript.eigenLookAt = playerCam.transform.rotation;
 	}
 }
