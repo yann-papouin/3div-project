@@ -35,7 +35,7 @@ public class TestScript : MonoBehaviour {
 	}
 	
 	public void testParentMove(){
-		GameObject tafel = GameObject.Find("Tafel");
+		GameObject tafel = GameObject.Find("TestCube");
 		tafel.transform.Translate(Vector3.forward * 2, Space.World);
 	}
 	public void testParentRotate(){
@@ -52,7 +52,7 @@ public class TestScript : MonoBehaviour {
 	public void testChangeParent(){
 		GameObject tafel = GameObject.Find("schaal1");
 		MoveScript script = (MoveScript) gameObject.GetComponent("MoveScript");
-		script.changeStackParent(GameObject.Find("TestCube"));
+		script.changeStackParent(GameObject.Find("schaal1"), GameObject.Find("TestCube"));
 		
 	}
 }

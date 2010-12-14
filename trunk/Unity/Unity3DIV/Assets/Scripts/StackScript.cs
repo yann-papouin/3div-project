@@ -47,7 +47,7 @@ public class StackScript : MonoBehaviour {
 				return;
 			}
 						
-			scriptOfSelectedObject.changeToTopview();			
+			((SmoothCameraScript) GetComponent("SmoothCameraScript")).changeViewedObject(carrier);		
 			topDownAxisInverted = topDownAxisIsInverted();
 			calculateDimensions();
 			
@@ -377,7 +377,7 @@ public class StackScript : MonoBehaviour {
 		}
 		lines.Clear();
 		
-		scriptOfSelectedObject.changeFromTopview();
+		((SmoothCameraScript) GetComponent("SmoothCameraScript")).returnFromTopview();
 		isActive = false;
 	}
 	
@@ -396,7 +396,7 @@ public class StackScript : MonoBehaviour {
 		}
 		lines.Clear();
 				
-		scriptOfSelectedObject.changeFromTopview();
+		((SmoothCameraScript) GetComponent("SmoothCameraScript")).returnFromTopview();
 		isActive = false;
 	}
 	

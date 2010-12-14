@@ -40,103 +40,18 @@ public class ObjectScript : MonoBehaviour {
 	// for cloning
 	public int cloneID;	// original item -> ID == 0
 	private int lastUsedCloneID;
-	private GameObject original = null;
-	
-	// for interpolating to topview
-	private  Vector3 cameraPositionBeforeTopView; 
-	private  Quaternion cameraRotationBeforeTopView; 
-	private Quaternion startInterpolRot, endInterpolRot;
-	private Vector3 startInterpolPos, endInterpolPos;
-	public float interpolTime = 3.0f;
-	private float elapsedTime;
-	private bool interpolToTopView;
+	private GameObject original = null;	
 
+	
 	// Use this for initialization
 	void Start () {		
 		cloneID = 0;
 		lastUsedCloneID = 0;
 		children = new ArrayList();
-		
-		elapsedTime = 2*interpolTime;
-		interpolToTopView = false;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if(elapsedTime <= interpolTime){
-			elapsedTime += Time.deltaTime;
-			
-			if(interpolToTopView){
-				Camera.main.transform.position = Vector3.Lerp(startInterpolPos, endInterpolPos, elapsedTime/interpolTime);
-				Camera.main.transform.rotation = Quaternion.Slerp(startInterpolRot, endInterpolRot, elapsedTime/interpolTime);
-			}
-			else{
-				Camera.main.transform.position = Vector3.Lerp(endInterpolPos, cameraPositionBeforeTopView, elapsedTime/interpolTime);
-				Camera.main.transform.rotation = Quaternion.Slerp(endInterpolRot, cameraRotationBeforeTopView, elapsedTime/interpolTime);
-			}
-		}
-	}
-	
-	public void changeToTopview(){		
-		if(elapsedTime > interpolTime){
-			cameraPositionBeforeTopView = Camera.main.transform.position;
-			cameraRotationBeforeTopView = Camera.main.transform.rotation;			
-			elapsedTime = 0.0f;
-		}
-		
-		interpolToTopView = true;
-		startInterpolPos = Camera.main.transform.position;
-		startInterpolRot = Camera.main.transform.rotation;
-		
-		Vector3 pos = transform.position;
-		pos.y += topViewDistance;
-		endInterpolPos = pos;			
-			
-		Transform rot = Camera.main.transform;
-		rot.rotation = Quaternion.identity;	
-		float angle = 0.0f;
-		
-		Vector3 rotp = new Vector3(90,0,0);
-		rot.Rotate (rotp, Space.World);
-		
-		// make sure topDown en leftRight are correctly shown
-		switch(localAxisLeftRight[0]){
-			case 'X':
-				angle = Vector3.Angle(rot.right, transform.right);
-				break;
-			case 'Y':
-				angle = Vector3.Angle(rot.right, transform.up);
-				break;
-			case 'Z':
-				angle = Vector3.Angle(rot.right, transform.forward);
-				break;
-		}		
-				
-		rotp = new Vector3(0,angle,0);
-		rot.Rotate (rotp, Space.World);
-		
-		bool flip = false;
-		switch(localAxisLeftRight[0]){
-			case 'X':
-				flip = Math.Abs(Vector3.Angle(rot.right, transform.right)) > 2.0f;
-				break;
-			case 'Y':
-				flip = Math.Abs(Vector3.Angle(rot.right, transform.up)) > 2.0f;
-				break;
-			case 'Z':
-				flip = Math.Abs(Vector3.Angle(rot.right, transform.forward)) > 2.0f;
-				break;
-		}
-		if(flip){
-			rot.Rotate (-2*rotp, Space.World);
-		}
-		
-		endInterpolRot = rot.rotation;			
-	}	
-	
-	public void changeFromTopview(){
-		interpolToTopView = false;
-		elapsedTime = 0.0f;		
 	}
 	
 	public Dictionary<string, bool> getObjectPossibilities(){
