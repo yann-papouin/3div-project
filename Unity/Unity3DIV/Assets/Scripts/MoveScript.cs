@@ -61,7 +61,7 @@ public class MoveScript : MonoBehaviour {
 						
 			scriptOfParentObject = 	(ObjectScript) parentObject.GetComponent("ObjectScript");	
 			
-			scriptOfParentObject.changeToTopview();			
+			((SmoothCameraScript) GetComponent("SmoothCameraScript")).changeViewedObject(parentObject);	
 			topDownAxisInverted = topDownAxisIsInverted();
 			calculateDimensions();
 			
@@ -277,31 +277,47 @@ public class MoveScript : MonoBehaviour {
 		move();		
 	}
 	
-	public void changeStackParent(GameObject newParent){
-		isActive = true;			
+	public void changeStackParent(GameObject selected, GameObject newParent){
+		isActive = true;
+		selectedObject = selected;
+		scriptOfSelectedObject = (ObjectScript) selected.GetComponent("ObjectScript");	
+			
+		if(scriptOfSelectedObject == null){
+			isActive = false;
+			return;
+		}
+			
+		parentObject = scriptOfSelectedObject.getParent();
+		if(parentObject == null){
+			isActive = false;
+			return;
+		}		
+						
+		scriptOfParentObject = 	(ObjectScript) parentObject.GetComponent("ObjectScript");			
 		ObjectScript npScript = (ObjectScript) newParent.GetComponent("ObjectScript");	
 		if(!npScript)
 			return;
 		if(npScript.canBeStackedOn == false)
 			return;
 	
-		scriptOfParentObject.detachChild(selectedObject);
+		scriptOfParentObject.detachChild(selected);
 		parentObject = newParent;						
-		scriptOfParentObject = 	(ObjectScript) parentObject.GetComponent("ObjectScript");	
-		
-		scriptOfParentObject.changeToTopview();			
+		scriptOfParentObject = 	npScript;		
+		((SmoothCameraScript) GetComponent("SmoothCameraScript")).changeViewedObject(newParent);	
 		topDownAxisInverted = topDownAxisIsInverted();
 		calculateDimensions();
 		
 		if(gridModus){
-			selectedObject.transform.parent = parentObject.transform;
-			selectedObject.transform.rotation = parentObject.transform.rotation;
+			selected.transform.parent = null;
+			selected.transform.rotation = parentObject.transform.rotation;
 			goToDefaultPositionGrid();				
-			scriptOfParentObject.addChildInGrid(selectedObject, currColInGrid, currRowInGrid);
+			scriptOfParentObject.addChildInGrid(selected, currColInGrid, currRowInGrid);
 		}			
 		else{
+			selected.transform.parent = null;
+			selected.transform.rotation = parentObject.transform.rotation;
 			goToDefaultPosition();	
-			scriptOfSelectedObject.addChild(selectedObject, currLeftRightOnObject, currTopDownOnObject);
+			scriptOfSelectedObject.addChild(selected, currLeftRightOnObject, currTopDownOnObject);
 		}
 	}
 	
@@ -339,7 +355,7 @@ public class MoveScript : MonoBehaviour {
 		}
 		lines.Clear();
 		
-		scriptOfParentObject.changeFromTopview();
+		((SmoothCameraScript) GetComponent("SmoothCameraScript")).returnFromTopview();
 		isActive = false;
 	}
 	
