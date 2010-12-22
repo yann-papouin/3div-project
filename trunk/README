@@ -1,5 +1,8 @@
 Logboek + presentatie -> zie ".\doc"
 
+Executables:
+	".\Unity\Unity_wiimote_merged_final\Executeables"
+
 Unity-project openen:
 	".\Unity\Unity_wiimote_merged_final\Unity3DIV\Assets\3dv.unity" met Unity openen
 
